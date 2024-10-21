@@ -383,39 +383,61 @@ function GenerateBow() {
 }
 
 function GeneratePumpkin() {
-  //make a circle
-  var Radius = 1.0;
-  var numPoints = 80;
+  var radius = 1.0;
+  var segments = 80;
 
-  // first circle
-  for (var i = 0; i < numPoints; i++) {
-    var Angle = i * ((2.0 * Math.PI) / numPoints);
-    var X = Math.cos(Angle) * Radius;
-    var Y = Math.sin(Angle) * Radius;
-    points.push(vec2(X, Y));
-    //interpolate color to be darker towards the center
-    colors.push(vec4(1, 0.5, 0, 1));
-  }
+  for (let i = 0; i <= segments; i++) {
+    const angle = (i / segments) * 2 * Math.PI;
+    points.push(vec2(radius * Math.cos(angle), radius * Math.sin(angle)));
+    //as i approaches 80, get darker orange
+    colors.push(vec4(1, 0.5 - i / 160, 0, 1));
+}
 
-  //second circle
-  for (var i = 0; i < numPoints; i++) {
-    var Angle = i * ((2.0 * Math.PI) / numPoints);
-    var X = Math.cos(Angle) * Radius;
-    var Y = Math.sin(Angle) * Radius;
-    points.push(vec2(X, Y));
-    //lighter orange color
-    colors.push(vec4(1, 0.6, 0, 1));
-  }
+  //draw face
+  //left eye 
+  points.push(vec2(-0.5, 0.25));
+  points.push(vec2(-0.25, 0.5));
+  points.push(vec2(-0, 0.25));
+  colors.push(vec4(0, 0, 0, 1));
+  colors.push(vec4(0, 0, 0, 1));
+  colors.push(vec4(0, 0, 0, 1));
 
-  //third circle
-  for (var i = 0; i < numPoints; i++) {
-    var Angle = i * ((2.0 * Math.PI) / numPoints);
-    var X = Math.cos(Angle) * Radius;
-    var Y = Math.sin(Angle) * Radius;
-    points.push(vec2(X, Y));
-    //lihgter orange color
-    colors.push(vec4(1, 0.65, 0, 1));
-  }
+  //right eye
+  points.push(vec2(0.2, 0.25));
+  points.push(vec2(0.4, 0.5));
+  points.push(vec2(0.7, 0.25));
+  colors.push(vec4(0, 0, 0, 1));
+  colors.push(vec4(0, 0, 0, 1));
+  colors.push(vec4(0, 0, 0, 1));
+
+  //generate mouth
+  for (var i = 0; i <= 80; i++) {
+    var Angle = i * (Math.PI / 80);
+    var X = Math.cos(Angle) * radius * 0.5;
+    var Y = Math.sin(Angle) * radius * 0.5 - 0.5;
+    colors.push(vec4(0, 0, 0, 1));
+    points.push(vec2(X, Y + (0.7)));
+}
+
+  //teeth (rectangle)
+  points.push(vec2(-0.1, -0.5));
+  points.push(vec2(-0.1, -0.7));
+  points.push(vec2(0.1, -0.7));
+  points.push(vec2(0.1, -0.5));
+  colors.push(vec4(1, 0.5, 0, 1));
+  colors.push(vec4(1, 0.5, 0, 1));
+  colors.push(vec4(1, 0.5, 0, 1));
+  colors.push(vec4(1, 0.5, 0, 1));
+
+  //vine on top
+  points.push(vec2(-0.1, 1));
+  points.push(vec2(-0.1, 1.5));
+  points.push(vec2(0.1, 1.5));
+  points.push(vec2(0.1, 1));
+  colors.push(vec4(0, 0.5, 0, 1));
+  colors.push(vec4(0, 0.5, 0, 1));
+  colors.push(vec4(0, 0.5, 0, 1));
+  colors.push(vec4(0, 0.5, 0, 1));
 }
 
 function DrawSky() {
@@ -569,24 +591,57 @@ function DrawBow() {
   gl.drawArrays(gl.LINE_STRIP, 497, 2);
 }
 
+function DrawOnePumpkin(t, s) {
+  modelViewMatrix = mat4();
+  modelViewMatrix = mult(modelViewMatrix, t);
+  modelViewMatrix = mult(modelViewMatrix, s);
+  gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(modelViewMatrix));
+  gl.drawArrays(gl.TRIANGLE_FAN, 499, 81);
+
+  modelViewMatrix = mat4();
+  modelViewMatrix = mult(modelViewMatrix, t);
+  modelViewMatrix = mult(modelViewMatrix, s);
+  gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(modelViewMatrix));
+  gl.drawArrays(gl.TRIANGLE_FAN, 580, 3);
+
+  modelViewMatrix = mat4();
+  modelViewMatrix = mult(modelViewMatrix, t);
+  modelViewMatrix = mult(modelViewMatrix, s);
+  gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(modelViewMatrix));
+  gl.drawArrays(gl.TRIANGLE_FAN, 583, 3);
+
+  modelViewMatrix = mat4();
+  modelViewMatrix = mult(modelViewMatrix, t);
+  modelViewMatrix = mult(modelViewMatrix, s);
+  modelViewMatrix = mult(modelViewMatrix, scale4(1, -1, 0));
+  gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(modelViewMatrix));
+  gl.drawArrays(gl.TRIANGLE_FAN, 586, 80);
+
+  modelViewMatrix = mat4();
+  modelViewMatrix = mult(modelViewMatrix, t);
+  modelViewMatrix = mult(modelViewMatrix, s);
+  gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(modelViewMatrix));
+  gl.drawArrays(gl.TRIANGLE_FAN, 667, 4);
+
+  modelViewMatrix = mat4();
+  modelViewMatrix = mult(modelViewMatrix, t);
+  modelViewMatrix = mult(modelViewMatrix, s);
+  gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(modelViewMatrix));
+  gl.drawArrays(gl.TRIANGLE_FAN, 671, 4);
+}
+
 function DrawPumpkin() {
-  modelViewMatrix = mat4();
-  modelViewMatrix = mult(modelViewMatrix, translate(0, 0, 0));
-  modelViewMatrix = mult(modelViewMatrix, scale4(0.6, .8, 1));
-  gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(modelViewMatrix));
-  gl.drawArrays(gl.TRIANGLE_FAN, 499, 80);
+  t = translate(-6.3, -1, 0);
+  s = scale4(0.75, 0.75, 1);
+  DrawOnePumpkin(t, s);
 
-  modelViewMatrix = mat4();
-  modelViewMatrix = mult(modelViewMatrix, translate(0, 0, 0));
-  modelViewMatrix = mult(modelViewMatrix, scale4(0.5, .8, 1));
-  gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(modelViewMatrix));
-  gl.drawArrays(gl.TRIANGLE_FAN, 579, 80);
+  t = translate(3, .1, 0);
+  s = scale4(1, 1, 1);
+  DrawOnePumpkin(t, s);
 
-  modelViewMatrix = mat4();
-  modelViewMatrix = mult(modelViewMatrix, translate(0, 0, 0));
-  modelViewMatrix = mult(modelViewMatrix, scale4(0.3, .8, 1));
-  gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(modelViewMatrix));
-  gl.drawArrays(gl.TRIANGLE_FAN, 659, 80);
+  t = translate(6.8, -1.2, 0);
+  s = scale4(0.9, 0.9, 1);
+  DrawOnePumpkin(t, s);
 }
 
 function render() {
