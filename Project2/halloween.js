@@ -69,9 +69,9 @@ function GeneratePoints() {
     GenerateGround();
     GenerateStars();
     GenerateMountains();
-
     GeneratePlanet();
     GenerateGhost();
+    GenerateBow();
 }
 
 function GenerateSky() {
@@ -300,6 +300,25 @@ function GenerateGhost() {
 	points.push(vec2(-3, 11));
 	points.push(vec2(-2.9, 10.5));
     // end left eye
+
+    //push color for the points
+    for(var i = 0; i <= 113; i++) {
+        colors.push(vec4(1, 1, 1, 1));
+    }
+}
+
+function GenerateBow() {
+    var Radius = 1.0;
+    var numPoints = 80;
+
+    // Generate the bow (semicircle)
+    for (var i = 0; i <= numPoints; i++) {
+        var Angle = i * (Math.PI / numPoints);
+        var X = Math.cos(Angle) * Radius;
+        var Y = Math.sin(Angle) * Radius;
+        colors.push(vec4(0.7, 0.7, 0, 1));
+        points.push(vec2(X, Y));
+    }
 }
 
 function DrawSky() {
@@ -375,6 +394,14 @@ function DrawGhost() {
     gl.drawArrays( gl.TRIANGLE_FAN, 390, 7);  // right eye ball
 }
 
+function DrawBow() {
+    modelViewMatrix=mat4();
+    modelViewMatrix = mult(modelViewMatrix, translate(0, -4, 0));
+    gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(modelViewMatrix));
+    gl.drawArrays( gl.LINE_LOOP, 397, 81);
+
+}
+
 function render() {
     gl.clear( gl.COLOR_BUFFER_BIT );
     gl.uniformMatrix4fv(projectionMatrixLoc, false, flatten(projectionMatrix));
@@ -397,4 +424,5 @@ function render() {
     DrawGhost();
 
     // add other things, like bow, arrow, spider, flower, tree ...
+    DrawBow();
 }
