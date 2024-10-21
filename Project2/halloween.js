@@ -74,6 +74,7 @@ function GeneratePoints() {
   GeneratePlanet();
   GenerateGhost();
   GenerateBow();
+  GeneratePumpkin();
 }
 
 function GenerateSky() {
@@ -321,6 +322,100 @@ function GenerateBow() {
     colors.push(vec4(0.7, 0.7, 0, 1));
     points.push(vec2(X, Y));
   }
+
+  //generate the bow string
+  points.push(vec2(-1, 0));
+  points.push(vec2(0, -2));
+  colors.push(vec4(1, 1, 1, 1));
+  colors.push(vec4(1, 1, 1, 1));
+
+  //generate the other bow string
+  points.push(vec2(1, 0));
+  points.push(vec2(0, -2));
+  colors.push(vec4(1, 1, 1, 1));
+  colors.push(vec4(1, 1, 1, 1));
+
+  //generate arrow
+  //arrow head
+  points.push(vec2(0, -2));
+  points.push(vec2(0.5, -3));
+  points.push(vec2(-0.5, -3));
+  colors.push(vec4(1, 1, 1, 1));
+  colors.push(vec4(1, 1, 1, 1));
+  colors.push(vec4(1, 1, 1, 1));
+
+  //arrow body
+  points.push(vec2(0, 0));
+  points.push(vec2(0, -3));
+  colors.push(vec4(1, 1, 1, 1));
+  colors.push(vec4(1, 1, 1, 1));
+
+  //feathers
+  points.push(vec2(0, -1));
+  points.push(vec2(0.5, -1.5));
+  colors.push(vec4(1, 1, 1, 1));
+  colors.push(vec4(1, 1, 1, 1));
+
+  points.push(vec2(0, -1));
+  points.push(vec2(0.5, -1.5));
+  colors.push(vec4(1, 1, 1, 1));
+  colors.push(vec4(1, 1, 1, 1));
+
+  points.push(vec2(0, -1));
+  points.push(vec2(0.5, -1.5));
+  colors.push(vec4(1, 1, 1, 1));
+  colors.push(vec4(1, 1, 1, 1));
+
+  points.push(vec2(0, -1));
+  points.push(vec2(-0.5, -1.5));
+  colors.push(vec4(1, 1, 1, 1));
+  colors.push(vec4(1, 1, 1, 1));
+
+  points.push(vec2(0, -1));
+  points.push(vec2(-0.5, -1.5));
+  colors.push(vec4(1, 1, 1, 1));
+  colors.push(vec4(1, 1, 1, 1));
+  
+  points.push(vec2(0, -1));
+  points.push(vec2(-0.5, -1.5));
+  colors.push(vec4(1, 1, 1, 1));
+  colors.push(vec4(1, 1, 1, 1));
+}
+
+function GeneratePumpkin() {
+  //make a circle
+  var Radius = 1.0;
+  var numPoints = 80;
+
+  // first circle
+  for (var i = 0; i < numPoints; i++) {
+    var Angle = i * ((2.0 * Math.PI) / numPoints);
+    var X = Math.cos(Angle) * Radius;
+    var Y = Math.sin(Angle) * Radius;
+    points.push(vec2(X, Y));
+    //interpolate color to be darker towards the center
+    colors.push(vec4(1, 0.5, 0, 1));
+  }
+
+  //second circle
+  for (var i = 0; i < numPoints; i++) {
+    var Angle = i * ((2.0 * Math.PI) / numPoints);
+    var X = Math.cos(Angle) * Radius;
+    var Y = Math.sin(Angle) * Radius;
+    points.push(vec2(X, Y));
+    //lighter orange color
+    colors.push(vec4(1, 0.6, 0, 1));
+  }
+
+  //third circle
+  for (var i = 0; i < numPoints; i++) {
+    var Angle = i * ((2.0 * Math.PI) / numPoints);
+    var X = Math.cos(Angle) * Radius;
+    var Y = Math.sin(Angle) * Radius;
+    points.push(vec2(X, Y));
+    //lihgter orange color
+    colors.push(vec4(1, 0.65, 0, 1));
+  }
 }
 
 function DrawSky() {
@@ -412,9 +507,86 @@ function DrawGhost() {
 
 function DrawBow() {
   modelViewMatrix = mat4();
-  modelViewMatrix = mult(modelViewMatrix, translate(0, -4, 0));
+  modelViewMatrix = mult(modelViewMatrix, translate(0, -5, 0));
   gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(modelViewMatrix));
-  gl.drawArrays(gl.LINE_LOOP, 397, 81);
+  gl.drawArrays(gl.LINE_STRIP, 397, 81);
+
+  modelViewMatrix = mat4();
+  modelViewMatrix = mult(modelViewMatrix, translate(0, -5, 0));
+  gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(modelViewMatrix));
+  gl.drawArrays(gl.LINE_LOOP, 478, 2);
+
+  modelViewMatrix = mat4();
+  modelViewMatrix = mult(modelViewMatrix, translate(0, -5, 0));
+  gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(modelViewMatrix));
+  gl.drawArrays(gl.LINE_LOOP, 480, 2);
+
+  modelViewMatrix = mat4();
+  modelViewMatrix = mult(modelViewMatrix, translate(0, -3, 0));
+  modelViewMatrix = mult(modelViewMatrix, scale4(0.3, 0.3, 1));
+  gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(modelViewMatrix));
+  gl.drawArrays(gl.TRIANGLE_FAN, 482, 3);
+
+  modelViewMatrix = mat4();
+  modelViewMatrix = mult(modelViewMatrix, translate(0, -3.8, 0));
+  modelViewMatrix = mult(modelViewMatrix, scale4(1, 1.1, 1));
+  gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(modelViewMatrix));
+  gl.drawArrays(gl.LINE_STRIP, 485, 2);
+
+  modelViewMatrix = mat4();
+  modelViewMatrix = mult(modelViewMatrix, translate(0, -6, 0));
+  modelViewMatrix = mult(modelViewMatrix, scale4(1/2, 1/2, 0));
+  gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(modelViewMatrix));
+  gl.drawArrays(gl.LINE_STRIP, 487, 2);
+
+  modelViewMatrix = mat4();
+  modelViewMatrix = mult(modelViewMatrix, translate(0, -6.2, 0));
+  modelViewMatrix = mult(modelViewMatrix, scale4(1/2, 1/2, 0));
+  gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(modelViewMatrix));
+  gl.drawArrays(gl.LINE_STRIP, 489, 2);
+
+  modelViewMatrix = mat4();
+  modelViewMatrix = mult(modelViewMatrix, translate(0, -6.4, 0));
+  modelViewMatrix = mult(modelViewMatrix, scale4(1/2, 1/2, 0));
+  gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(modelViewMatrix));
+  gl.drawArrays(gl.LINE_STRIP, 491, 2);
+  modelViewMatrix = mat4();
+  modelViewMatrix = mult(modelViewMatrix, translate(0, -6, 0));
+  modelViewMatrix = mult(modelViewMatrix, scale4(1/2, 1/2, 0));
+  gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(modelViewMatrix));
+  gl.drawArrays(gl.LINE_STRIP, 493, 2);
+
+  modelViewMatrix = mat4();
+  modelViewMatrix = mult(modelViewMatrix, translate(0, -6.2, 0));
+  modelViewMatrix = mult(modelViewMatrix, scale4(1/2, 1/2, 0));
+  gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(modelViewMatrix));
+  gl.drawArrays(gl.LINE_STRIP, 495, 2);
+
+  modelViewMatrix = mat4();
+  modelViewMatrix = mult(modelViewMatrix, translate(0, -6.4, 0));
+  modelViewMatrix = mult(modelViewMatrix, scale4(1/2, 1/2, 0));
+  gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(modelViewMatrix));
+  gl.drawArrays(gl.LINE_STRIP, 497, 2);
+}
+
+function DrawPumpkin() {
+  modelViewMatrix = mat4();
+  modelViewMatrix = mult(modelViewMatrix, translate(0, 0, 0));
+  modelViewMatrix = mult(modelViewMatrix, scale4(0.6, .8, 1));
+  gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(modelViewMatrix));
+  gl.drawArrays(gl.TRIANGLE_FAN, 499, 80);
+
+  modelViewMatrix = mat4();
+  modelViewMatrix = mult(modelViewMatrix, translate(0, 0, 0));
+  modelViewMatrix = mult(modelViewMatrix, scale4(0.5, .8, 1));
+  gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(modelViewMatrix));
+  gl.drawArrays(gl.TRIANGLE_FAN, 579, 80);
+
+  modelViewMatrix = mat4();
+  modelViewMatrix = mult(modelViewMatrix, translate(0, 0, 0));
+  modelViewMatrix = mult(modelViewMatrix, scale4(0.3, .8, 1));
+  gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(modelViewMatrix));
+  gl.drawArrays(gl.TRIANGLE_FAN, 659, 80);
 }
 
 function render() {
@@ -440,4 +612,5 @@ function render() {
 
   // add other things, like bow, arrow, spider, flower, tree ...
   DrawBow();
+  DrawPumpkin();
 }
