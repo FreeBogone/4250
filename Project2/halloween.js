@@ -163,15 +163,65 @@ function GeneratePlanet() {
   var Radius = 1.0;
   var numPoints = 80;
 
+  // LINE_STRIP semi circle
+  for(var i = 0; i < numPoints; i++) {
+      var Angle = i * (( Math.PI) / numPoints);
+      var X = Math.cos(Angle) * Radius;
+      var Y = Math.sin(Angle) * Radius;
+      colors.push(vec4(0, 0, 1, 1));
+      points.push(vec2(X, Y));
+  }
+
+  for(var i = 0; i < numPoints; i++) {
+      var Angle = i * (( Math.PI) / numPoints);
+      var X = Math.cos(Angle) * Radius;
+      var Y = Math.sin(Angle) * Radius;
+      colors.push(vec4(0, 1, 0, 1));
+      points.push(vec2(X, Y));
+  }
+
+  for(var i = 0; i < numPoints; i++) {
+      var Angle = i * (( Math.PI) / numPoints);
+      var X = Math.cos(Angle) * Radius;
+      var Y = Math.sin(Angle) * Radius;
+      colors.push(vec4(1, 0, 0, 1));
+      points.push(vec2(X, Y));
+  }
+
+
   // TRIANGLE_FAN : for solid circle
   for (var i = 0; i < numPoints; i++) {
-    var Angle = i * ((2.0 * Math.PI) / numPoints);
-    var X = Math.cos(Angle) * Radius;
-    var Y = Math.sin(Angle) * Radius;
-    colors.push(vec4(0.7, 0.7, 0, 1));
-    points.push(vec2(X, Y));
+      var Angle = i * ((2.0 * Math.PI) / numPoints);
+      var X = Math.cos(Angle) * Radius;
+      var Y = Math.sin(Angle) * Radius;
+      colors.push(vec4(0.7, 0.7, 0, 1));
+      points.push(vec2(X, Y));
 
-    // use 360 instead of 2.0*PI if // you use d_cos and d_sin
+  // use 360 instead of 2.0*PI if // you use d_cos and d_sin
+  }
+
+  for(var i = 0; i < numPoints; i++) {
+      var Angle = i * (( Math.PI) / numPoints);
+      var X = Math.cos(Angle) * Radius;
+      var Y = Math.sin(Angle) * Radius;
+      colors.push(vec4(0, 0, 1, 1));
+      points.push(vec2(X, Y));
+  }       
+
+  for(var i = 0; i < numPoints; i++) {
+      var Angle = i * (( Math.PI) / numPoints);
+      var X = Math.cos(Angle) * Radius;
+      var Y = Math.sin(Angle) * Radius;
+      colors.push(vec4(0, 1, 0, 1));
+      points.push(vec2(X, Y));
+  }
+
+  for(var i = 0; i < numPoints; i++) {
+      var Angle = i * (( Math.PI) / numPoints);
+      var X = Math.cos(Angle) * Radius;
+      var Y = Math.sin(Angle) * Radius;
+      colors.push(vec4(1, 0, 0, 1));
+      points.push(vec2(X, Y));
   }
 }
 
@@ -504,91 +554,145 @@ function DrawMountains() {
 
 function DrawFullPlanet() {
   modelViewMatrix = mat4();
-  modelViewMatrix = mult(modelViewMatrix, translate(4, 5.5, 0));
+  modelViewMatrix = mult(modelViewMatrix, translate(6, 6, 0));
+  modelViewMatrix = mult(modelViewMatrix, scale4(1.5, 0.5 * 1.618, 1));
+  modelViewMatrix = mult(modelViewMatrix, rotate(70, 1, 0, 0));
+  modelViewMatrix = mult(modelViewMatrix, rotate(30, 0, 1, 0));
+  gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(modelViewMatrix));
+  // draw planet circle
+  gl.drawArrays(gl.LINE_STRIP, 203, 80);
+
+  modelViewMatrix = mat4();
+  modelViewMatrix = mult(modelViewMatrix, translate(6, 6.2, 0));
+  modelViewMatrix = mult(modelViewMatrix, scale4(1.5, 0.5 * 1.618, 1));
+  modelViewMatrix = mult(modelViewMatrix, rotate(70, 1, 0, 0));
+  modelViewMatrix = mult(modelViewMatrix, rotate(30, 0, 1, 0));
+  gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(modelViewMatrix));
+  // draw planet circle
+  gl.drawArrays(gl.LINE_STRIP, 283, 80);
+
+  modelViewMatrix = mat4();
+  modelViewMatrix = mult(modelViewMatrix, translate(6, 6 - 0.2, 0));
+  modelViewMatrix = mult(modelViewMatrix, scale4(1.5, 0.5 * 1.618, 1));
+  modelViewMatrix = mult(modelViewMatrix, rotate(70, 1, 0, 0));
+  modelViewMatrix = mult(modelViewMatrix, rotate(30, 0, 1, 0));
+  gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(modelViewMatrix));
+  // draw planet circle
+  gl.drawArrays(gl.LINE_STRIP, 363, 80);
+
+  modelViewMatrix = mat4();
+  modelViewMatrix = mult(modelViewMatrix, translate(6, 6, 0));
   modelViewMatrix = mult(modelViewMatrix, scale4(0.7, 0.7 * 1.618, 1));
   gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(modelViewMatrix));
   // draw planet circle
-  gl.drawArrays(gl.TRIANGLE_FAN, 203, 80);
+  gl.drawArrays(gl.TRIANGLE_FAN, 443, 80);
+
+  modelViewMatrix = mat4();
+  modelViewMatrix = mult(modelViewMatrix, translate(6, 6, 0));
+  modelViewMatrix = mult(modelViewMatrix, scale4(1.5, 0.5 * 1.618, 1));
+  modelViewMatrix = mult(modelViewMatrix, rotate(110, 1, 0, 0));
+  modelViewMatrix = mult(modelViewMatrix, rotate(30, 0, 1, 0));
+  gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(modelViewMatrix));
+  // draw planet circle
+  gl.drawArrays(gl.LINE_STRIP, 523, 80);
+
+  modelViewMatrix = mat4();
+  modelViewMatrix = mult(modelViewMatrix, translate(6, 6.2, 0));
+  modelViewMatrix = mult(modelViewMatrix, scale4(1.5, 0.5 * 1.618, 1));
+  modelViewMatrix = mult(modelViewMatrix, rotate(110, 1, 0, 0));
+  modelViewMatrix = mult(modelViewMatrix, rotate(30, 0, 1, 0));
+  gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(modelViewMatrix));
+  // draw planet circle
+  gl.drawArrays(gl.LINE_STRIP, 603, 80);
+
+  modelViewMatrix = mat4();
+  modelViewMatrix = mult(modelViewMatrix, translate(6, 6-0.2, 0));
+  modelViewMatrix = mult(modelViewMatrix, scale4(1.5, 0.5 * 1.618, 1));
+  modelViewMatrix = mult(modelViewMatrix, rotate(110, 1, 0, 0));
+  modelViewMatrix = mult(modelViewMatrix, rotate(30, 0, 1, 0));
+  gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(modelViewMatrix));
+  // draw planet circle
+  gl.drawArrays(gl.LINE_STRIP, 683, 80);
 }
 
 function DrawGhost() {
   modelViewMatrix = mult(modelViewMatrix, scale4(1 / 20, 1 / 20, 1));
   gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(modelViewMatrix));
-  gl.drawArrays(gl.LINE_LOOP, 283, 87); // body
-  gl.drawArrays(gl.LINE_LOOP, 370, 6); // mouth
-  gl.drawArrays(gl.LINE_LOOP, 376, 5); // nose
+  gl.drawArrays(gl.LINE_LOOP, 763, 87); // body
+  gl.drawArrays(gl.LINE_LOOP, 850, 6); // mouth
+  gl.drawArrays(gl.LINE_LOOP, 856, 5); // nose
 
-  gl.drawArrays(gl.LINE_LOOP, 381, 9); // left eye
-  gl.drawArrays(gl.TRIANGLE_FAN, 390, 7); // left eye ball
+  gl.drawArrays(gl.LINE_LOOP, 861, 9); // left eye
+  gl.drawArrays(gl.TRIANGLE_FAN, 870, 7); // left eye ball
 
   modelViewMatrix = mult(modelViewMatrix, translate(2.6, 0, 0));
   gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(modelViewMatrix));
-  gl.drawArrays(gl.LINE_STRIP, 381, 9); // right eye
-  gl.drawArrays(gl.TRIANGLE_FAN, 390, 7); // right eye ball
+  gl.drawArrays(gl.LINE_STRIP, 861, 9); // right eye
+  gl.drawArrays(gl.TRIANGLE_FAN, 870, 7); // right eye ball
 }
 
 function DrawBow() {
   modelViewMatrix = mat4();
   modelViewMatrix = mult(modelViewMatrix, translate(0, -5, 0));
   gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(modelViewMatrix));
-  gl.drawArrays(gl.LINE_STRIP, 397, 81);
+  gl.drawArrays(gl.LINE_STRIP, 877, 81);
 
   modelViewMatrix = mat4();
   modelViewMatrix = mult(modelViewMatrix, translate(0, -5, 0));
   gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(modelViewMatrix));
-  gl.drawArrays(gl.LINE_LOOP, 478, 2);
+  gl.drawArrays(gl.LINE_LOOP, 958, 2);
 
   modelViewMatrix = mat4();
   modelViewMatrix = mult(modelViewMatrix, translate(0, -5, 0));
   gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(modelViewMatrix));
-  gl.drawArrays(gl.LINE_LOOP, 480, 2);
+  gl.drawArrays(gl.LINE_LOOP, 960, 2);
 
   modelViewMatrix = mat4();
   modelViewMatrix = mult(modelViewMatrix, translate(0, -3, 0));
   modelViewMatrix = mult(modelViewMatrix, scale4(0.3, 0.3, 1));
   gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(modelViewMatrix));
-  gl.drawArrays(gl.TRIANGLE_FAN, 482, 3);
+  gl.drawArrays(gl.TRIANGLE_FAN, 962, 3);
 
   modelViewMatrix = mat4();
   modelViewMatrix = mult(modelViewMatrix, translate(0, -3.8, 0));
   modelViewMatrix = mult(modelViewMatrix, scale4(1, 1.1, 1));
   gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(modelViewMatrix));
-  gl.drawArrays(gl.LINE_STRIP, 485, 2);
+  gl.drawArrays(gl.LINE_STRIP, 965, 2);
 
   modelViewMatrix = mat4();
   modelViewMatrix = mult(modelViewMatrix, translate(0, -6, 0));
   modelViewMatrix = mult(modelViewMatrix, scale4(1/2, 1/2, 0));
   gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(modelViewMatrix));
-  gl.drawArrays(gl.LINE_STRIP, 487, 2);
+  gl.drawArrays(gl.LINE_STRIP, 967, 2);
 
   modelViewMatrix = mat4();
   modelViewMatrix = mult(modelViewMatrix, translate(0, -6.2, 0));
   modelViewMatrix = mult(modelViewMatrix, scale4(1/2, 1/2, 0));
   gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(modelViewMatrix));
-  gl.drawArrays(gl.LINE_STRIP, 489, 2);
+  gl.drawArrays(gl.LINE_STRIP, 969, 2);
 
   modelViewMatrix = mat4();
   modelViewMatrix = mult(modelViewMatrix, translate(0, -6.4, 0));
   modelViewMatrix = mult(modelViewMatrix, scale4(1/2, 1/2, 0));
   gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(modelViewMatrix));
-  gl.drawArrays(gl.LINE_STRIP, 491, 2);
+  gl.drawArrays(gl.LINE_STRIP, 971, 2);
   modelViewMatrix = mat4();
   modelViewMatrix = mult(modelViewMatrix, translate(0, -6, 0));
   modelViewMatrix = mult(modelViewMatrix, scale4(1/2, 1/2, 0));
   gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(modelViewMatrix));
-  gl.drawArrays(gl.LINE_STRIP, 493, 2);
+  gl.drawArrays(gl.LINE_STRIP, 973, 2);
 
   modelViewMatrix = mat4();
   modelViewMatrix = mult(modelViewMatrix, translate(0, -6.2, 0));
   modelViewMatrix = mult(modelViewMatrix, scale4(1/2, 1/2, 0));
   gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(modelViewMatrix));
-  gl.drawArrays(gl.LINE_STRIP, 495, 2);
+  gl.drawArrays(gl.LINE_STRIP, 975, 2);
 
   modelViewMatrix = mat4();
   modelViewMatrix = mult(modelViewMatrix, translate(0, -6.4, 0));
   modelViewMatrix = mult(modelViewMatrix, scale4(1/2, 1/2, 0));
   gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(modelViewMatrix));
-  gl.drawArrays(gl.LINE_STRIP, 497, 2);
+  gl.drawArrays(gl.LINE_STRIP, 977, 2);
 }
 
 function DrawOnePumpkin(t, s) {
@@ -596,38 +700,38 @@ function DrawOnePumpkin(t, s) {
   modelViewMatrix = mult(modelViewMatrix, t);
   modelViewMatrix = mult(modelViewMatrix, s);
   gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(modelViewMatrix));
-  gl.drawArrays(gl.TRIANGLE_FAN, 499, 81);
+  gl.drawArrays(gl.TRIANGLE_FAN, 979, 81);
 
   modelViewMatrix = mat4();
   modelViewMatrix = mult(modelViewMatrix, t);
   modelViewMatrix = mult(modelViewMatrix, s);
   gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(modelViewMatrix));
-  gl.drawArrays(gl.TRIANGLE_FAN, 580, 3);
+  gl.drawArrays(gl.TRIANGLE_FAN, 1060, 3);
 
   modelViewMatrix = mat4();
   modelViewMatrix = mult(modelViewMatrix, t);
   modelViewMatrix = mult(modelViewMatrix, s);
   gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(modelViewMatrix));
-  gl.drawArrays(gl.TRIANGLE_FAN, 583, 3);
+  gl.drawArrays(gl.TRIANGLE_FAN, 1063, 3);
 
   modelViewMatrix = mat4();
   modelViewMatrix = mult(modelViewMatrix, t);
   modelViewMatrix = mult(modelViewMatrix, s);
   modelViewMatrix = mult(modelViewMatrix, scale4(1, -1, 0));
   gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(modelViewMatrix));
-  gl.drawArrays(gl.TRIANGLE_FAN, 586, 80);
+  gl.drawArrays(gl.TRIANGLE_FAN, 1066, 80);
 
   modelViewMatrix = mat4();
   modelViewMatrix = mult(modelViewMatrix, t);
   modelViewMatrix = mult(modelViewMatrix, s);
   gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(modelViewMatrix));
-  gl.drawArrays(gl.TRIANGLE_FAN, 667, 4);
+  gl.drawArrays(gl.TRIANGLE_FAN, 1147, 4);
 
   modelViewMatrix = mat4();
   modelViewMatrix = mult(modelViewMatrix, t);
   modelViewMatrix = mult(modelViewMatrix, s);
   gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(modelViewMatrix));
-  gl.drawArrays(gl.TRIANGLE_FAN, 671, 4);
+  gl.drawArrays(gl.TRIANGLE_FAN, 1151, 4);
 }
 
 function DrawPumpkin() {
