@@ -1,3 +1,13 @@
+// Bowen Truelove
+// Project 2
+// Halloween.js
+// Due Date: 10/24/2024
+// Dr. Cen Li
+
+
+//A.I. Disclaimer: All work for this assignment was completed by myself and entirely without 
+//the use of artificial intelligence tools such as ChatGPT, MS Copilot, other LLMs, etc
+
 var modelViewMatrix = mat4(); // identity
 var modelViewMatrixLoc;
 var projectionMatrix;
