@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<script id="vertex-shader" type="x-shader/x-vertex">
+attribute vec4 vPosition;
+attribute vec4 vColor;
+varying vec4 fColor;
+uniform mat4 projectionMatrix;
+uniform mat4 modelviewMatrix;
+
+void main(){
+    gl_Position = projectionMatrix * modelviewMatrix * vPosition;
+    fColor = vColor;
+}
+</script>
+
+<script id="fragment-shader" type="x-shader/x-fragment">
+precision mediump float;
+varying vec4 fColor;
+
+void main() {
+    gl_FragColor = fColor;
+}
+</script>
+
+<script type="text/javascript" src="../Common/webgl-utils.js"></script>
+<script type="text/javascript" src="../Common/initShaders.js"></script>
+<script type="text/javascript" src="../Common/MV.js"></script>
+<script type="text/javascript" src="game.js"></script>
+<style>
+  #position-label {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background-color: rgba(255, 255, 255, 0.8);
+    padding: 5px;
+    border-radius: 5px;
+    font-family: Arial, sans-serif;
+  }
+</style>
+</head>
+
+<body onload="main()">
+<canvas id="gl-canvas" width="512" height="512">
+Oops ... your browser doesn't support the HTML5 canvas element
+</canvas>
+
+<div id="position-label">Position: (0, 0, 0)</div>
+
+<div>
+<button id="xrotPlus">xrot Plus</button>
+<button id="xrotMinus">xrot Minus</button>
+<button id="yrotPlus">yrot Plus</button>
+<button id="yrotMinus">yrot Minus</button>
+</div>
+
+<div>
+<button id="ToggleDepth">Toggle Depth Test</button>
+<button id="ToggleCull">Toggle Cull Face</button>
+</div>
+
+</body>
+</html>
