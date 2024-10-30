@@ -1,5 +1,4 @@
-// draw a 3D cone
-// experiment with depth test and cull face features in 3D drawing
+// draw a 3D tetrahedron
 var gl, program, canvas;
 
 var projectionMatrix;
@@ -15,8 +14,8 @@ var deg=5;
 // start with normal view
 var dtindex=1;  // enable depth test
 var cfindex=2;  // disable cull face, disabled by default webgl/opengl
-var numSlices=16;
-var radius=50;
+// var numSlices=16;
+// var radius=50;
 
 function main()   {
     canvas = document.getElementById( "gl-canvas" );
@@ -26,12 +25,22 @@ function main()   {
 
     vertices = GeneratePoints();
 
+    SetupUserInterface();
+
     ConfigWebGL();
 
 	PassInfoToGPU();
 
     render();
 };
+
+function scale4(a, b, c) {
+    var result = mat4();
+    result[0][0] = a;
+    result[1][1] = b;
+    result[2][2] = c;
+    return result;
+}
 
 function ConfigWebGL()   {
     //  Configure WebGL
@@ -41,6 +50,46 @@ function ConfigWebGL()   {
     //  Load shaders and initialize attribute buffers
     program = initShaders( gl, "vertex-shader", "fragment-shader" );
     gl.useProgram( program );
+}
+
+function SetupUserInterface()  {
+    // support user interface
+    document.getElementById("xrotPlus").onclick=function(){xrot += deg; console.log(xrot);};
+    document.getElementById("xrotMinus").onclick=function(){xrot -= deg; console.log(xrot);};
+    document.getElementById("yrotPlus").onclick=function(){yrot += deg; console.log(yrot);};
+    document.getElementById("yrotMinus").onclick=function(){yrot -= deg; console.log(yrot);};
+
+    document.getElementById("ToggleDepth").onclick=function()
+    {	 if (dtindex==1)  dtindex=2;
+         else     dtindex=1;
+    };
+
+
+    document.getElementById("ToggleCull").onclick=function()
+    {    if (cfindex==1)  cfindex=2;
+         else     cfindex=1;
+    };
+
+    // keyboard handle
+    window.onkeydown = HandleKeyboard;
+}
+
+function HandleKeyboard(event)  {
+    switch (event.keyCode)
+    {
+    case 37:  // left cursor key
+              yrot -= deg;
+              break;
+    case 39:   // right cursor key
+              yrot += deg;
+              break;
+    case 38:   // up cursor key
+              xrot -= deg;
+              break;
+    case 40:    // down cursor key
+              xrot += deg; 
+              break;
+    }
 }
 
 function PassInfoToGPU()  {
@@ -61,28 +110,19 @@ function PassInfoToGPU()  {
 function GeneratePoints()  {
     var points=[];
 
-    // Define the vertices of a tetrahedron
-    var vertices = [
-        vec3(0.0, 0.0, 1.0),
-        vec3(0.0, 0.9428, -0.3333),
-        vec3(-0.8165, -0.4714, -0.3333),
-        vec3(0.8165, -0.4714, -0.3333)
-    ];
+    //geometric coordinates of a tetrahedron
 
-    // Define the faces of the tetrahedron (each face is a triangle)
-    var faces = [
-        [vertices[0], vertices[1], vertices[2]],
-        [vertices[0], vertices[2], vertices[3]],
-        [vertices[0], vertices[3], vertices[1]],
-        [vertices[1], vertices[2], vertices[3]]
-    ];
+    var a = vec3(0, 0, 1);
+    var b = vec3(0, 1, -1);
+    var c = vec3(1, -1, -1);
+    var d = vec3(-1, -1, -1);
 
-    // Add each face to the points array
-    for (var i = 0; i < faces.length; i++) {
-        points.push(faces[i][0]);
-        points.push(faces[i][1]);
-        points.push(faces[i][2]);
-    }
+    // 4 triangles
+    points.push(a, b, c);
+    points.push(a, c, d);
+    points.push(a, d, b);
+    points.push(b, d, c);
+
 
 
     return points;
@@ -99,9 +139,11 @@ function render() {
     var r2 = rotate(yrot, 0, 1, 0);
     modelviewMatrix = mult(r1, r2);
 
-    //rotate the object so the viewer can see it is 3d
-    modelviewMatrix = mult(modelviewMatrix, rotate(30, 1, 0, 0));
-    modelviewMatrix = mult(modelviewMatrix, rotate(30, 0, 1, 0));
+    modelviewMatrix = mat4();
+    modelviewMatrix = mult(modelviewMatrix, rotate(xrot, [1, 0, 0])); 
+    modelviewMatrix = mult(modelviewMatrix, rotate(yrot, [0, 1, 0]));
+    modelviewMatrix = mult(modelviewMatrix, translate(0, 0, -50));
+    modelviewMatrix = mult(modelviewMatrix, scale4(20, 20, 20));
 
 
     gl.uniformMatrix4fv(modelviewMatrixLoc, false, flatten(modelviewMatrix) );
@@ -127,8 +169,18 @@ function render() {
          gl.disable(gl.CULL_FACE);
 
     //draw the tetrahedron
+    gl.uniform1i(gl.getUniformLocation(program, "colorIndex"), 1);
+    gl.drawArrays( gl.TRIANGLES, 0, 3 );
+
+    gl.uniform1i(gl.getUniformLocation(program, "colorIndex"), 2);
+    gl.drawArrays( gl.TRIANGLES, 3, 3 );
+
     gl.uniform1i(gl.getUniformLocation(program, "colorIndex"), 3);
-    gl.drawArrays( gl.TRIANGLES, 0, vertices.length );
+    gl.drawArrays( gl.TRIANGLES, 6, 3 );
+
+    gl.uniform1i(gl.getUniformLocation(program, "colorIndex"), 1);
+    gl.drawArrays( gl.TRIANGLES, 9, 3 );
+
 
     requestAnimFrame(render);
 }
