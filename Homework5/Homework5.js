@@ -1,4 +1,10 @@
-// draw a 3D tetrahedron
+// Homework 5
+// Bowen Truelove
+// 10/30/2024
+// Dr. Cen Li
+
+//
+
 var gl, program, canvas;
 
 var projectionMatrix;
@@ -6,35 +12,73 @@ var projectionMatrixLoc;
 var modelviewMatrix;
 var modelviewMatrixLoc;
 
-var xrot=0;
-var yrot=0;
-var zrot=0;
-var deg=5;
+var xrot = 0;
+var yrot = 0;
+var zrot = 0;
+var deg = 5;
 
-// start with normal view
-var dtindex=1;  // enable depth test
-var cfindex=2;  // disable cull face, disabled by default webgl/opengl
-// var numSlices=16;
-// var radius=50;
+var dtindex = 1;
+var cfindex = 2;
 
-function main()   {
-    canvas = document.getElementById( "gl-canvas" );
+var points = [];
+var texCoords = [];
 
-    gl = WebGLUtils.setupWebGL( canvas );
-    if ( !gl ) { alert( "WebGL isn't available" ); }
+var textures = [];
+var textureFiles = ['sand.jpg', 'stone.jpg', 'paint.jpg', 'wood.jpg'];
+var texturesLoaded = 0;
 
-    vertices = GeneratePoints();
+var mouseDown = false;
+var lastMouseX = null;
+var lastMouseY = null;
+var zoom = 1.0;
 
-    SetupUserInterface();
+
+
+function main() {
+    canvas = document.getElementById("gl-canvas");
+
+    gl = WebGLUtils.setupWebGL(canvas);
+    if (!gl) { alert("WebGL isn't available"); }
+
+    GeneratePoints();
 
     ConfigWebGL();
+    PassInfoToGPU();
+    
+    // Load all textures before starting render
+    for (var i = 0; i < textureFiles.length; i++) {
+        loadTexture(i, textureFiles[i]);
+    }
 
-	PassInfoToGPU();
+    SetupUserInterface();
+}
 
-    render();
-};
+function loadTexture(index, src) {
+    // Load a texture and store it in the textures array
+    var texture = gl.createTexture();
+    textures[index] = texture;
+    texture.image = new Image();
+    texture.image.onload = function() {
+        gl.bindTexture(gl.TEXTURE_2D, texture);
+        gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, texture.image);
+
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+        
+        texturesLoaded++;
+        if (texturesLoaded === textureFiles.length) {
+            // Start rendering only after all textures are loaded
+            render();
+        }
+    }
+    texture.image.src = src;
+}
 
 function scale4(a, b, c) {
+    // returns a scaling matrix
     var result = mat4();
     result[0][0] = a;
     result[1][1] = b;
@@ -42,145 +86,150 @@ function scale4(a, b, c) {
     return result;
 }
 
-function ConfigWebGL()   {
-    //  Configure WebGL
-    gl.viewport( 0, 0, canvas.width, canvas.height );
-    gl.clearColor( 1.0, 1.0, 1.0, 1.0 );
-
-    //  Load shaders and initialize attribute buffers
-    program = initShaders( gl, "vertex-shader", "fragment-shader" );
-    gl.useProgram( program );
+function ConfigWebGL() {
+    gl.viewport(0, 0, canvas.width, canvas.height);
+    gl.clearColor(1.0, 1.0, 1.0, 1.0);
+    program = initShaders(gl, "vertex-shader", "fragment-shader");
+    gl.useProgram(program);
 }
 
-function SetupUserInterface()  {
-    // support user interface
-    document.getElementById("xrotPlus").onclick=function(){xrot += deg; console.log(xrot);};
-    document.getElementById("xrotMinus").onclick=function(){xrot -= deg; console.log(xrot);};
-    document.getElementById("yrotPlus").onclick=function(){yrot += deg; console.log(yrot);};
-    document.getElementById("yrotMinus").onclick=function(){yrot -= deg; console.log(yrot);};
+function SetupUserInterface() {
+    document.getElementById("xrotPlus").onclick = function() { xrot += deg; };
+    document.getElementById("xrotMinus").onclick = function() { xrot -= deg; };
+    document.getElementById("yrotPlus").onclick = function() { yrot += deg; };
+    document.getElementById("yrotMinus").onclick = function() { yrot -= deg; };
 
-    document.getElementById("ToggleDepth").onclick=function()
-    {	 if (dtindex==1)  dtindex=2;
-         else     dtindex=1;
-    };
-
-
-    document.getElementById("ToggleCull").onclick=function()
-    {    if (cfindex==1)  cfindex=2;
-         else     cfindex=1;
-    };
-
-    // keyboard handle
+    //event handling for keyboard and mouse
     window.onkeydown = HandleKeyboard;
+    canvas.onmousedown = handleMouseDown;
+    document.onmouseup = handleMouseUp;
+    document.onmousemove = handleMouseMove;
+    canvas.onwheel = handleMouseWheel;
 }
 
-function HandleKeyboard(event)  {
-    switch (event.keyCode)
-    {
-    case 37:  // left cursor key
-              yrot -= deg;
-              break;
-    case 39:   // right cursor key
-              yrot += deg;
-              break;
-    case 38:   // up cursor key
-              xrot -= deg;
-              break;
-    case 40:    // down cursor key
-              xrot += deg; 
-              break;
+function HandleKeyboard(event) {
+    // rotate with arrow keys
+    switch (event.keyCode) {
+        case 37: yrot -= deg; break;
+        case 39: yrot += deg; break;
+        case 38: xrot -= deg; break;
+        case 40: xrot += deg; break;
     }
 }
 
-function PassInfoToGPU()  {
-    // Load the data into the GPU
-    bufferId = gl.createBuffer();
-    gl.bindBuffer( gl.ARRAY_BUFFER, bufferId );
-    gl.bufferData( gl.ARRAY_BUFFER, flatten(vertices), gl.STATIC_DRAW );
-
-    // Associate out shader variables with our data buffer
-    vPosition = gl.getAttribLocation( program, "vPosition" );
-    gl.vertexAttribPointer( vPosition, 3, gl.FLOAT, false, 0, 0 );
-    gl.enableVertexAttribArray( vPosition );
-
-    projectionMatrixLoc= gl.getUniformLocation(program, "projectionMatrix");
-    modelviewMatrixLoc= gl.getUniformLocation(program, "modelviewMatrix");
+function handleMouseDown(event) {
+    // rotate with mouse
+    mouseDown = true;
+    lastMouseX = event.clientX;
+    lastMouseY = event.clientY;
 }
 
-function GeneratePoints()  {
-    var points=[];
+function handleMouseUp(event) {
+    // stop rotating with mouse
+    mouseDown = false;
+}
 
-    //geometric coordinates of a tetrahedron
+function handleMouseMove(event) {
+    // rotate with mouse
+    if (!mouseDown) {
+        return;
+    }
 
+    var newX = event.clientX;
+    var newY = event.clientY;
+
+    var deltaX = newX - lastMouseX;
+    var deltaY = newY - lastMouseY;
+
+    xrot += deltaY * 0.5;
+    yrot += deltaX * 0.5;
+
+    lastMouseX = newX;
+    lastMouseY = newY;
+}
+
+function handleMouseWheel(event) {
+    //zoom with mouse wheel
+    zoom += event.deltaY * -0.01;
+    zoom = Math.min(Math.max(0.1, zoom), 10);
+}
+
+function PassInfoToGPU() {
+    var bufferId = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, bufferId);
+    gl.bufferData(gl.ARRAY_BUFFER, flatten(points), gl.STATIC_DRAW);
+
+    var vPosition = gl.getAttribLocation(program, "vPosition");
+    gl.vertexAttribPointer(vPosition, 3, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(vPosition);
+
+    var texCoordBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, texCoordBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, flatten(texCoords), gl.STATIC_DRAW);
+
+    var vTexCoord = gl.getAttribLocation(program, "vTexCoord");
+    gl.vertexAttribPointer(vTexCoord, 2, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(vTexCoord);
+
+    projectionMatrixLoc = gl.getUniformLocation(program, "projectionMatrix");
+    modelviewMatrixLoc = gl.getUniformLocation(program, "modelviewMatrix");
+}
+
+function GeneratePoints() {
+
+
+    //generate points for the tetrahedrons vertices
     var a = vec3(0, 0, 1);
     var b = vec3(0, 1, -1);
     var c = vec3(1, -1, -1);
     var d = vec3(-1, -1, -1);
 
-    // 4 triangles
+    //push points for the tetrahedrons faces
     points.push(a, b, c);
+    texCoords.push(vec2(0.5, 1), vec2(0, 0), vec2(1, 0));
+
     points.push(a, c, d);
+    texCoords.push(vec2(0.5, 1), vec2(1, 0), vec2(0, 0));
+
     points.push(a, d, b);
+    texCoords.push(vec2(0.5, 1), vec2(0, 0), vec2(1, 0));
+
     points.push(b, d, c);
-
-
-
-    return points;
+    texCoords.push(vec2(0.5, 1), vec2(0, 0), vec2(1, 0));
 }
 
 function render() {
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+    gl.frontFace(gl.CCW);
 
-    gl.clear( gl.COLOR_BUFFER_BIT| gl.DEPTH_BUFFER_BIT );
-	  gl.frontFace(gl.CCW); // designate CCW to front facing (default)
+    // Set up the projection matrix
+    projectionMatrix = ortho(-100 * zoom, 100 * zoom, -100 * zoom, 100 * zoom, -100, 100);
 
-    projectionMatrix = ortho(-100, 100, -100, 100, -100, 100);
-
+    // Set up the modelview matrix
     var r1 = rotate(xrot, 1, 0, 0);
     var r2 = rotate(yrot, 0, 1, 0);
     modelviewMatrix = mult(r1, r2);
 
+    // Set up the modelview matrix
     modelviewMatrix = mat4();
-    modelviewMatrix = mult(modelviewMatrix, rotate(xrot, [1, 0, 0])); 
+    modelviewMatrix = mult(modelviewMatrix, rotate(xrot, [1, 0, 0]));
     modelviewMatrix = mult(modelviewMatrix, rotate(yrot, [0, 1, 0]));
     modelviewMatrix = mult(modelviewMatrix, translate(0, 0, -50));
-    modelviewMatrix = mult(modelviewMatrix, scale4(20, 20, 20));
+    modelviewMatrix = mult(modelviewMatrix, scale4(40, 40, 40));
 
-
-    gl.uniformMatrix4fv(modelviewMatrixLoc, false, flatten(modelviewMatrix) );
+    // Pass the matrices to the shader
+    gl.uniformMatrix4fv(modelviewMatrixLoc, false, flatten(modelviewMatrix));
     gl.uniformMatrix4fv(projectionMatrixLoc, false, flatten(projectionMatrix));
 
-    // toggle Depth test: initially enabled  (i.e., dtindex=1 in the global setting)
-    if (dtindex == 1)
-         gl.enable(gl.DEPTH_TEST);
-    else if (dtindex == 2)
-         gl.disable(gl.DEPTH_TEST);
+    // Set the depth test
+    if (dtindex == 1) gl.enable(gl.DEPTH_TEST);
+    else if (dtindex == 2) gl.disable(gl.DEPTH_TEST);
 
-    // toggle face culling
-    // initially disable face culling (i.e., initially cfindex=2 in the global setting)
-    // WegGL/OpenGL disable face culling by default
-    // enable face culling (i.e., not draw the bottom of the cone if it is away from the eye)
-    if (cfindex == 1)     {
-         gl.enable(gl.CULL_FACE);
-         //gl.cullFace(gl.BACK);   // do not show back face, default
-         gl.cullFace(gl.FRONT);   // do not show front
+    // draw shape
+    for (var i = 0; i < 4; i++) {
+        gl.bindTexture(gl.TEXTURE_2D, textures[i]);
+        gl.drawArrays(gl.TRIANGLES, i * 3, 3);
     }
-    // disable face culling (i.e., do draw the bottom of the cone even though it is away from the eye)
-    else if (cfindex == 2)
-         gl.disable(gl.CULL_FACE);
-
-    //draw the tetrahedron
-    gl.uniform1i(gl.getUniformLocation(program, "colorIndex"), 1);
-    gl.drawArrays( gl.TRIANGLES, 0, 3 );
-
-    gl.uniform1i(gl.getUniformLocation(program, "colorIndex"), 2);
-    gl.drawArrays( gl.TRIANGLES, 3, 3 );
-
-    gl.uniform1i(gl.getUniformLocation(program, "colorIndex"), 3);
-    gl.drawArrays( gl.TRIANGLES, 6, 3 );
-
-    gl.uniform1i(gl.getUniformLocation(program, "colorIndex"), 1);
-    gl.drawArrays( gl.TRIANGLES, 9, 3 );
-
 
     requestAnimFrame(render);
 }
