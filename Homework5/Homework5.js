@@ -3,7 +3,8 @@
 // 10/30/2024
 // Dr. Cen Li
 
-//
+//A.I. Disclaimer: All work for this assignment was completed by myself and entirely without 
+//the use of artificial intelligence tools such as ChatGPT, MS Copilot, other LLMs, etc
 
 var gl, program, canvas;
 
@@ -94,10 +95,6 @@ function ConfigWebGL() {
 }
 
 function SetupUserInterface() {
-    document.getElementById("xrotPlus").onclick = function() { xrot += deg; };
-    document.getElementById("xrotMinus").onclick = function() { xrot -= deg; };
-    document.getElementById("yrotPlus").onclick = function() { yrot += deg; };
-    document.getElementById("yrotMinus").onclick = function() { yrot -= deg; };
 
     //event handling for keyboard and mouse
     window.onkeydown = HandleKeyboard;
