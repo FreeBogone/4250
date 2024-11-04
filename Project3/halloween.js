@@ -123,7 +123,6 @@ function handleKeyPress(event) {
 }
 
 function moveGhost() {
-  // Implement logic to move the ghost to a random position
   if(ghostVisible === false) {
     ghostVisible = true;
   }
@@ -807,11 +806,13 @@ function DrawArrow() {
   modelViewMatrix = mult(modelViewMatrix, scale4(1/2, 1/2, 0));
   gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(modelViewMatrix));
   gl.drawArrays(gl.LINE_STRIP, 971, 2);
+
   modelViewMatrix = mat4();
   modelViewMatrix = mult(baseModelViewMatrix, translate(0 + arrowPosition[0], -6 + arrowPosition[1], 0));
   modelViewMatrix = mult(modelViewMatrix, scale4(1/2, 1/2, 0));
   gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(modelViewMatrix));
   gl.drawArrays(gl.LINE_STRIP, 973, 2);
+  
   modelViewMatrix = mat4();
   modelViewMatrix = mult(baseModelViewMatrix, translate(0 + arrowPosition[0], -6.2 + arrowPosition[1], 0));
   modelViewMatrix = mult(modelViewMatrix, scale4(1/2, 1/2, 0));
