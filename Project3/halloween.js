@@ -8,6 +8,17 @@
 // A.I. Disclaimer: All work for this assignment was completed by myself and entirely without 
 // the use of artificial intelligence tools such as ChatGPT, MS Copilot, other LLMs, etc
 
+// features implemented: 
+
+// • When the game starts, the landscape is drawn. The bow and arrow is also visible in the center lower screen
+// When one presses the ‘s’ or ‘S’ key, a ghost appears at a random position in the upper half of the screen.
+// Continue to press the ‘s’ or ‘S’ key will allow the ghost to change to a different random position..
+// • Pressing the ‘l’ or ‘L’ key or the left arrow key rotates the bow to the left to aim for the ghost. Similarly,
+// pressing the ‘r’ or ‘R’ key or the right arrow key rotates the bow to the right to aim for the ghost.
+// • Pressing the ‘f’ or ‘F’ key fires the arrow. When the arrow is fired, it moves forward in the current
+// direction. After a fixed length of movement (that ensures the arrow exits the screen), the ghost disappears
+// and the arrow re-appears on the bow (which remains at the center lower screen).
+
 
 var modelViewMatrix = mat4(); // identity
 var modelViewMatrixLoc;
