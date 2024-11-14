@@ -40,46 +40,55 @@ var vertices = [
 
 // define the colors
 var colors = [
-    vec4(0.0, 0.0, 0.0, 1.0), // black
-    vec4(1.0, 0.0, 0.0, 1.0), // red
-    vec4(1.0, 1.0, 0.0, 1.0), // yellow
-    vec4(0.0, 1.0, 0.0, 1.0), // green
-    vec4(0.0, 0.0, 1.0, 1.0), // blue
-    vec4(1.0, 0.0, 1.0, 1.0), // magenta
-    vec4(0.0, 1.0, 1.0, 1.0), // cyan
-    vec4(1.0, 1.0, 1.0, 1.0) // white
+    vec4(0.0, 0.0, 0.0, 1.0), // black 0
+    vec4(1.0, 0.0, 0.0, 1.0), // red 1
+    vec4(1.0, 1.0, 0.0, 1.0), // yellow 2
+    vec4(0.0, 1.0, 0.0, 1.0), // green 3
+    vec4(0.0, 0.0, 1.0, 1.0), // blue 4
+    vec4(1.0, 0.0, 1.0, 1.0), // magenta 5
+    vec4(0.0, 1.0, 1.0, 1.0), // cyan 6
+    vec4(1.0, 1.0, 1.0, 1.0) // white 7
 ];
 
 // define the faces
 function DrawMesh()
 {
-    triangle(vertices[0], vertices[1], vertices[2], colors[1]);
-    triangle(vertices[0], vertices[2], vertices[4], colors[2]);
-    triangle(vertices[0], vertices[4], vertices[5], colors[3]);
-    triangle(vertices[0], vertices[5], vertices[3], colors[0]);
-    quad(vertices[1], vertices[0], vertices[5], vertices[7], colors[4]);
-    quad(vertices[1], vertices[7], vertices[8], vertices[3], colors[5]);
-    quad(vertices[3], vertices[8], vertices[6], vertices[4], colors[6]);
-    quad(vertices[4], vertices[6], vertices[2], vertices[5], colors[7]);
+    quad(7, 8, 6, 5, 0);
+    quad(5, 6, 4, 2, 1);
+    quad(2, 4, 3, 1, 2);
+    quad(1, 3, 8, 7, 5);
+    quad(3, 8, 6, 4, 4);
+    quad(1, 7, 5, 2, 5);
+
+    triangle(7, 5, 0, 6);
+    triangle(5, 2, 0, 5);
+    triangle(2, 1, 0, 4);
+    triangle(1, 7, 0, 3);
 }
 
 // define the quad function and other needed function, such as triangle
 function quad(a, b, c, d, colorIndex) {
-    var indices = [ a, b, c, a, c, d ];
-
-    for ( var i = 0; i < indices.length; ++i ) {
-        pointsArray.push( vertices[indices[i]] );
-        colorsArray.push( colors[colorIndex] );
-    }
+    pointsArray.push(vertices[a]);
+    colorsArray.push(colors[colorIndex]);
+    pointsArray.push(vertices[b]);
+    colorsArray.push(colors[colorIndex]);
+    pointsArray.push(vertices[c]);
+    colorsArray.push(colors[colorIndex]);
+    pointsArray.push(vertices[a]);
+    colorsArray.push(colors[colorIndex]);
+    pointsArray.push(vertices[c]);
+    colorsArray.push(colors[colorIndex]);
+    pointsArray.push(vertices[d]);
+    colorsArray.push(colors[colorIndex]);
 }
 
 function triangle(a, b, c, colorIndex) {
-    var indices = [ a, b, c ];
-
-    for ( var i = 0; i < indices.length; ++i ) {
-        pointsArray.push( vertices[indices[i]] );
-        colorsArray.push( colors[colorIndex] );
-    }
+    pointsArray.push(vertices[a]);
+    colorsArray.push(colors[colorIndex]);
+    pointsArray.push(vertices[b]);
+    colorsArray.push(colors[colorIndex]);
+    pointsArray.push(vertices[c]);
+    colorsArray.push(colors[colorIndex]);
 }
 
 // no need to change after this point
