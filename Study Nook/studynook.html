@@ -1,0 +1,138 @@
+<!--
+PROGRAMMER: Ruth Dohrmann
+PROJECT: project 4, part III
+PROGRAM: studynook.html
+DUE DATE: 12/12/23
+INSTRUCTOR: Dr. Cen Li
+
+Description: This program, together with additional javascript files
+(including studynook.js, points.js, candlesticks.js, extruded.js, fan.js,
+and book.js), displays a 3d scene with a table, a chair, a curtain, a
+file holder, a curtain rod, a bookshelf, multiple books, multiple
+candlesticks, a basebaord, crown molding, a fan, a rug, pens, a pen
+holder, plants (ferns and trees), paper, a window, and a framed painting.
+-->
+
+<!DOCTYPE html>
+<html>
+
+<script id="vertex-shader" type="x-shader/x-vertex">
+
+attribute vec4 vPosition;
+attribute vec4 vNormal;
+attribute vec4 vColor;
+attribute vec2 vTextureCoord;
+
+varying vec2 fTextureCoord;
+varying vec4 fColor;
+
+uniform vec4 ambientProduct, diffuseProduct, specularProduct;
+uniform mat4 modelViewMatrix;
+uniform mat4 projectionMatrix;
+uniform vec4 lightPosition;
+uniform float shininess;
+
+void main()
+{
+    vec3 pos = -(modelViewMatrix * vPosition).xyz;
+    vec3 light = -(modelViewMatrix * lightPosition).xyz;
+    vec3 L = normalize( light - pos );
+
+    vec3 E = normalize( -pos );
+    vec3 H = normalize( L + E );
+
+    // Transform vertex normal into eye coordinates
+    vec3 N = normalize( (modelViewMatrix*vNormal).xyz);
+
+    // Compute terms in the illumination equation
+    vec4 ambient = ambientProduct;
+
+    float Kd = max( dot(L, N), 0.0 );
+    vec4  diffuse = Kd*diffuseProduct;
+
+    float Ks = pow( max(dot(N, H), 0.0), shininess );
+    vec4  specular = Ks * specularProduct;
+
+    if( dot(L, N) < 0.0 )  specular = vec4(0.0, 0.0, 0.0, 1.0);
+
+    gl_Position = projectionMatrix * modelViewMatrix * vPosition ;
+
+    fColor = ambient + diffuse + specular;
+	  fTextureCoord = vTextureCoord;
+
+    fColor.a = 1.0;
+}
+</script>
+
+<script id="fragment-shader" type="x-shader/x-fragment">
+
+precision mediump float;
+
+varying vec4 fColor;
+uniform sampler2D texture;
+varying vec2 fTextureCoord;
+uniform float falpha;
+
+void main()
+{
+  vec4 textureColor = texture2D( texture, fTextureCoord );
+  gl_FragColor = fColor*vec4( textureColor.rgb, textureColor.a*falpha);
+}
+</script>
+
+<script type="text/javascript" src="../Common/webgl-utils.js"></script>
+<script type="text/javascript" src="../Common/initShaders.js"></script>
+<script type="text/javascript" src="../Common/MV.js"></script>
+<script type="text/javascript" src="studynook.js"></script>
+<script type="text/javascript" src="points.js"></script>
+<script type="text/javascript" src="revolution.js"></script>
+<script type="text/javascript" src="extruded.js"></script>
+<script type="text/javascript" src="fan.js"></script>
+<script type="text/javascript" src="book.js"></script>
+<script type="text/javascript" src="fern.js"></script>
+<script type="text/javascript" src="walls.js"></script>
+
+<body>
+<canvas id="gl-canvas" width="792" height="612">
+Oops ... your browser doesn't support the HTML5 canvas element
+</canvas>
+
+<div>
+  <p>
+  <button id = "thetaup">Increase theta</button>
+  <button id = "thetadown">Decrease theta</button>
+  <button id = "phiup">Increase phi</button>
+  <button id = "phidown">Decrease phi</button>
+  <p> </p>
+  ------------------------------
+  <p></p>
+  Hold and move LMB to rotate<p> </p>
+  Hold and move RMB to pan<p> </p>
+  Scroll wheel to zoom<p> </p>
+</div>
+    <p> </p>
+    ------------------------------
+    <p></p>
+    Enter eye location:
+<div>
+    <FORM name="parameterForm">
+    X: <input type=text name="xValue" value=2>
+    Y: <input type=text name="yValue" value=2>
+    Z: <input type=text name="zValue" value=2>
+    <INPUT TYPE="BUTTON" id="eyeValue" VALUE="Submit">
+    </Form>
+</div>
+
+<!-- Attribute authors -->
+<a href="https://www.freepik.com/free-ai-image/abstract-gold-background_57312955.htm#query=gold%20texture&position=22&from_view=keyword&track=ais&uuid=39a66b53-9ec9-4ac3-a289-3ab8acdbcd41">Gold Texture (image by Freepik)</a>
+<a href="https://www.freepik.com/free-photo/texture-wooden-boards_971817.htm#query=wood%20floor&position=5&from_view=keyword&track=ais&uuid=eaabb075-7eaa-4646-9cf0-3bae0f39fbd6">Wood Floor Texture (image by fwstudio on Freepik)</a>
+<a href="https://www.freepik.com/free-photo/empty-red-brick-wall_3001810.htm#query=empty%20red%20brick%20wall&position=47&from_view=search&track=ais&uuid=3dac5756-629d-47f0-b754-2c11ac891dc3">Brick Wall Texture: (image by rawpixel.com on Freepik)</a>
+<a href="https://www.freepik.com/free-vector/dark-red-abstract-shapes-pattern_852281.htm#query=carpet%20texture%20intricate%20dark%20red&position=2&from_view=search&track=ais&uuid=456cfcbe-6a60-4655-ad8c-014d5ee56862">Carpet Texture (image by dotstudio on Freepik)</a>
+<a href="https://www.freepik.com/free-photo/green-fake-grass-background_2791853.htm#query=grass&position=15&from_view=search&track=sph&uuid=62264f67-7885-4c0f-9cb0-e98c51eae9ed">Gress Texture (image by rawpixel.com on Freepik)</a>
+<a href="https://www.freepik.com/free-photo/shibori-pattern-background-indigo-blue-color_15557641.htm#page=2&query=blue%20and%20brown%20pattern%20pottery&position=3&from_view=search&track=ais&uuid=16b72b72-87c3-4d2a-9406-11ad9a058ae9">Pot Texture (image by rawpixel.com on Freepik)</a>
+Roof Texture: (by <a href="https://unsplash.com/@enzosartori?utm_content=creditCopyText&utm_medium=referral&utm_source=unsplash">Enzo Sartori</a>) on <a href="https://unsplash.com/photos/a-close-up-of-a-roof-made-of-wood-shingles-1Q1bH5wUvc0?utm_content=creditCopyText&utm_medium=referral&utm_source=unsplash">Unsplash</a>
+
+
+
+</body>
+</html>

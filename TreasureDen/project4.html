@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+
+<script id="vertex-shader" type="x-shader/x-vertex">
+	attribute  vec4 vPosition;
+	attribute  vec3 vNormal;
+	attribute vec2 vTextureCoord;
+
+	varying vec2 fTextureCoord;
+	varying vec4 fColor;
+
+	uniform mat4 modelViewMatrix;
+	uniform mat4 projectionMatrix;
+
+	uniform vec4 ambientProduct, diffuseProduct, specularProduct;
+	uniform vec4 lightPosition;
+
+	uniform float shininess;
+
+	void main() {
+		vec3 position = (modelViewMatrix * vPosition).xyz;
+		vec3 light = lightPosition.xyz;
+
+		vec3 L = normalize(light - position);
+		vec3 E = normalize(-position);
+		vec3 H = normalize(L + E);
+
+		vec4 NN = vec4(vNormal, 0);
+		vec3 N = normalize((modelViewMatrix * NN).xyz);
+
+		float Kd = max(dot(L, N), 0.0);
+		float Ks = pow(max(dot(N, H), 0.0), shininess);
+
+		vec4 diffuse = Kd * diffuseProduct;
+		vec4 specular = Ks * specularProduct;
+
+		if (dot(L, N) < 0.0) {
+			specular = vec4(0.0, 0.0, 0.0, 1.0);
+		}
+
+		gl_Position = projectionMatrix * modelViewMatrix * vPosition;
+
+		vec4 ambient = ambientProduct;
+		fColor = ambient + diffuse + specular;
+		fColor.a = 1.0;
+
+		fTextureCoord = vTextureCoord;
+	}
+</script>
+
+<script id="fragment-shader" type="x-shader/x-fragment">
+	precision mediump float;
+	varying vec4 fColor;
+
+	varying vec2 fTextureCoord;
+	uniform sampler2D texture;
+
+	void main() {
+		gl_FragColor = fColor * texture2D(texture, fTextureCoord);
+	}
+</script>
+
+<script type="text/javascript" src="../Common/webgl-utils.js"></script>
+<script type="text/javascript" src="../Common/initShaders.js"></script>
+<script type="text/javascript" src="../Common/MV.js"></script>
+<script type="text/javascript" src="letters.js"></script>
+<script type="text/javascript" src="primitives.js"></script>
+<script type="text/javascript" src="heart.js"></script>
+<script type="text/javascript" src="shrine.js"></script>
+<script type="text/javascript" src="chest.js"></script>
+<script type="text/javascript" src="pot.js"></script>
+<script type="text/javascript" src="extruded.js"></script>
+<script type="text/javascript" src="sword.js"></script>
+<script type="text/javascript" src="cobble.js"></script>
+<script type="text/javascript" src="project4.js"></script>
+
+<body onload="main()">
+	<div align="center">
+		<canvas id="gl-canvas" oncontextmenu="return false;" style="cursor: grabbing;" width="768" height="768">
+			Oops ... your browser doesn't support the HTML5 canvas element
+		</canvas>
+
+		<div>
+			<p>
+			<button id = "thetaup">Rotate Up</button>
+			<button id = "thetadown">Rotate Down</button>
+			<button id = "phiup">Rotate Left</button>
+			<button id = "phidown">Rotate Right</button>
+			<p> </p>
+
+			<button id = "animate">Toggle Animation</button>
+			<button id = "reset">Reset Scene</button>
+			<p> </p>
+			<div style="width: 50%">
+				<hr>
+			</div>
+			<p></p>
+			Hold and move the LMB to rotate.<p> </p>
+			Hold and move the RMB to pan.<p> </p>
+			Move the scroll wheel to zoom.<p> </p>
+			Type "a" to toggle animations.<p> </p>
+			Type "b" to reset the scene.<p> </p>
+
+		</div>
+</body>
+</html>
