@@ -1,5 +1,5 @@
 var canvas;
-var gl;
+var gl, program;
 
 var zoomFactor = .8;
 var translateFactorX = -0.2;
@@ -24,6 +24,10 @@ var up=[0, 1, 0];
 var cubeCount=36;
 var sphereCount=0;
 
+var lightPosition = vec4(0.5, 0.5, 0.5, 0);
+var lightAmbient, lightDiffuse, lightSpecular;
+var materialAmbient, materialDiffuse, materialSpecular;
+var materialShininess;
 
 var vertices = [
     vec4( -0.5, -0.5,  0.5, 1.0 ),
@@ -50,32 +54,53 @@ var vb = vec4(0.0, 0.942809, 0.333333, 1);
 var vc = vec4(-0.816497, -0.471405, 0.333333, 1);
 var vd = vec4(0.816497, -0.471405, 0.333333,1);
 
-var lightPosition = vec4(1.0, 2.0, 3.0, 0.0); // Adjusted light position
-
-var lightAmbient = vec4(0.4, 0.4, 0.4, 1.0); // Increased ambient light
-var lightDiffuse = vec4(1.0, 1.0, 0.8, 1.0); // Warm diffuse light
-var lightSpecular = vec4(1.0, 1.0, 1.0, 1.0); // Bright specular light
-
-var materialAmbient = vec4(0.3, 0.3, 0.3, 1.0); // Darker ambient material
-var materialDiffuse = vec4(0.6, 0.6, 0.6, 1.0); // Gray diffuse material
-var materialSpecular = vec4(0.9, 0.9, 0.9, 1.0); // Bright specular material
-
-var materialShininess = 100.0; // Increased shininess
-
-
-var ambientColor, diffuseColor, specularColor;
-
 var modelViewMatrix, projectionMatrix;
 var modelViewMatrixLoc, projectionMatrixLoc;
 var mvMatrixStack=[];
 
-window.onload = function init()
+var mouseDown = false;
+var lastMouseX = null;
+var lastMouseY = null;
+var rotationMatrix = mat4();
+
+function handleMouseDown(event) {
+    mouseDown = true;
+    lastMouseX = event.clientX;
+    lastMouseY = event.clientY;
+}
+
+function handleMouseUp(event) {
+    mouseDown = false;
+}
+
+function handleMouseMove(event) {
+    if (!mouseDown) {
+        return;
+    }
+
+    var newX = event.clientX;
+    var newY = event.clientY;
+
+    var deltaX = newX - lastMouseX;
+    var deltaY = newY - lastMouseY;
+
+    var newRotationMatrix = mat4();
+    newRotationMatrix = mult(rotate(deltaX / 10, [0, 1, 0]), newRotationMatrix);
+    newRotationMatrix = mult(rotate(deltaY / 10, [1, 0, 0]), newRotationMatrix);
+
+    rotationMatrix = mult(newRotationMatrix, rotationMatrix);
+
+    lastMouseX = newX;
+    lastMouseY = newY;
+
+    render();
+}
+
+function main()
 {
     canvas = document.getElementById( "gl-canvas" );
-
     gl = WebGLUtils.setupWebGL( canvas );
     if ( !gl ) { alert( "WebGL isn't available" ); }
-
     gl.viewport( 0, 0, canvas.width, canvas.height );
     gl.clearColor( 1.0, 1.0, 1.0, 1.0 );
 
@@ -84,13 +109,8 @@ window.onload = function init()
     //
     //  Load shaders and initialize attribute buffers
     //
-    var program = initShaders( gl, "vertex-shader", "fragment-shader" );
+    program = initShaders( gl, "vertex-shader", "fragment-shader" );
     gl.useProgram( program );
-
-    // set up lighting and material
-    ambientProduct = mult(lightAmbient, materialAmbient);
-    diffuseProduct = mult(lightDiffuse, materialDiffuse);
-    specularProduct = mult(lightSpecular, materialSpecular);
 
     // generate the points/normals
     colorCube();
@@ -117,12 +137,6 @@ window.onload = function init()
     modelViewMatrixLoc = gl.getUniformLocation( program, "modelViewMatrix" );
     projectionMatrixLoc = gl.getUniformLocation( program, "projectionMatrix" );
 
-    gl.uniform4fv( gl.getUniformLocation(program, "ambientProduct"),flatten(ambientProduct) );
-    gl.uniform4fv( gl.getUniformLocation(program, "diffuseProduct"),flatten(diffuseProduct) );
-    gl.uniform4fv( gl.getUniformLocation(program, "specularProduct"),flatten(specularProduct) );
-    gl.uniform4fv( gl.getUniformLocation(program, "lightPosition"),flatten(lightPosition) );
-    gl.uniform1f( gl.getUniformLocation(program, "shininess"),materialShininess );
-
     // support user interface
     document.getElementById("zoomIn").onclick=function(){zoomFactor *= 0.95;};
     document.getElementById("zoomOut").onclick=function(){zoomFactor *= 1.05;};
@@ -133,6 +147,10 @@ window.onload = function init()
 
     // keyboard handle
     window.onkeydown = HandleKeyboard;
+
+    canvas.addEventListener("mousedown", handleMouseDown, false);
+    document.addEventListener("mouseup", handleMouseUp, false);
+    document.addEventListener("mousemove", handleMouseMove, false);
 
     render();
 }
@@ -154,6 +172,18 @@ function HandleKeyboard(event)
               yrot += deg;
               break;
     }
+}
+
+function SetupLightingMaterial()
+{
+    var ambientProduct = mult(lightAmbient, materialAmbient);
+    var diffuseProduct = mult(lightDiffuse, materialDiffuse);
+    var specularProduct = mult(lightSpecular, materialSpecular);
+    gl.uniform4fv(gl.getUniformLocation(program, "ambientProduct"), flatten(ambientProduct));
+    gl.uniform4fv(gl.getUniformLocation(program, "diffuseProduct"), flatten(diffuseProduct));
+    gl.uniform4fv(gl.getUniformLocation(program, "specularProduct"), flatten(specularProduct));
+    gl.uniform4fv(gl.getUniformLocation(program, "lightPosition"), flatten(lightPosition));
+    gl.uniform1f(gl.getUniformLocation(program, "shininess"), materialShininess);
 }
 
 // ******************************************
@@ -207,6 +237,14 @@ function DrawSolidCone(radius, height) {
 // start drawing the wall
 function DrawWall(thickness)
 {
+  lightAmbient = vec4(0.1, 0.1, 0.3, 1);
+  lightDiffuse = vec4(0.1, 0.1, 0.3, 1);
+  lightSpecular = vec4(0.1, 0.1, 0.3, 1);
+  materialAmbient = vec4(0.0, 0.0, 0.5, 1);
+  materialDiffuse = vec4(0.0, 0.0, 0.8, 1);
+  materialSpecular = vec4(0.0, 0.0, 1.0, 1);
+  materialShininess = 6;
+  SetupLightingMaterial();
 	var s, t, r;
 
 	// draw thin wall with top = xz-plane, corner at origin
@@ -331,6 +369,14 @@ function DrawTable(topWid, topThick, legThick, legLen)
 
 function DrawTire() {
 
+    lightAmbient = vec4(0.0, 0.0, 0.0, 1);
+    lightDiffuse = vec4(0.0, 0.0, 0.0, 1);
+    lightSpecular = vec4(0.0, 0.0, 0.0, 1);
+    materialAmbient = vec4(0.0, 0.0, 0.0, 1);
+    materialDiffuse = vec4(0.0, 0.0, 0.0, 1);
+    materialSpecular = vec4(0.0, 0.0, 0.0, 1);
+    materialShininess = 1;
+    SetupLightingMaterial();
     //a tire is a cylinder
     mvMatrixStack.push(modelViewMatrix);
 
@@ -350,35 +396,75 @@ function DrawCar() {
 
     //using spheres as wheels
     mvMatrixStack.push(modelViewMatrix);
+    lightAmbient = vec4(0.0, 0.0, 0.0, 1);
+    lightDiffuse = vec4(0.0, 0.0, 0.0, 1);
+    lightSpecular = vec4(0.0, 0.0, 0.0, 1);
+    materialAmbient = vec4(0.0, 0.0, 0.0, 1);
+    materialDiffuse = vec4(0.0, 0.0, 0.0, 1);
+    materialSpecular = vec4(0.0, 0.0, 0.0, 1);
+    materialShininess = 1;
+    SetupLightingMaterial();
     t=translate(0.6, -0.5, -0.3);
-    s=scale4(0.7, 0.7, 0.7);
+    s=scale4(0.7, 0.4, 0.7);
     modelViewMatrix=mult(mult(modelViewMatrix, t), s);
     DrawSolidSphere(0.5);
     modelViewMatrix=mvMatrixStack.pop();
 
     mvMatrixStack.push(modelViewMatrix);
+    lightAmbient = vec4(0.0, 0.0, 0.0, 1);
+    lightDiffuse = vec4(0.0, 0.0, 0.0, 1);
+    lightSpecular = vec4(0.0, 0.0, 0.0, 1);
+    materialAmbient = vec4(0.0, 0.0, 0.0, 1);
+    materialDiffuse = vec4(0.0, 0.0, 0.0, 1);
+    materialSpecular = vec4(0.0, 0.0, 0.0, 1);
+    materialShininess = 1;
+    SetupLightingMaterial();
     t=translate(-0.6, -0.5, -0.3);
-    s=scale4(0.7, 0.7, 0.7);
+    s=scale4(0.7, 0.4, 0.7);
     modelViewMatrix=mult(mult(modelViewMatrix, t), s);
     DrawSolidSphere(0.5);
     modelViewMatrix=mvMatrixStack.pop();
 
     mvMatrixStack.push(modelViewMatrix);
+    lightAmbient = vec4(0.0, 0.0, 0.0, 1);
+    lightDiffuse = vec4(0.0, 0.0, 0.0, 1);
+    lightSpecular = vec4(0.0, 0.0, 0.0, 1);
+    materialAmbient = vec4(0.0, 0.0, 0.0, 1);
+    materialDiffuse = vec4(0.0, 0.0, 0.0, 1);
+    materialSpecular = vec4(0.0, 0.0, 0.0, 1);
+    materialShininess = 1;
+    SetupLightingMaterial();
     t=translate(-0.6, 0.5, -0.3);
-    s=scale4(0.7, 0.7, 0.7);
+    s=scale4(0.7, 0.4, 0.7);
     modelViewMatrix=mult(mult(modelViewMatrix, t), s);
     DrawSolidSphere(0.5);
     modelViewMatrix=mvMatrixStack.pop();
 
     mvMatrixStack.push(modelViewMatrix);
+    lightAmbient = vec4(0.0, 0.0, 0.0, 1);
+    lightDiffuse = vec4(0.0, 0.0, 0.0, 1);
+    lightSpecular = vec4(0.0, 0.0, 0.0, 1);
+    materialAmbient = vec4(0.0, 0.0, 0.0, 1);
+    materialDiffuse = vec4(0.0, 0.0, 0.0, 1);
+    materialSpecular = vec4(0.0, 0.0, 0.0, 1);
+    materialShininess = 1;
+    SetupLightingMaterial();
     t=translate(0.6, 0.5, -0.3);
-    s=scale4(0.7, 0.7, 0.7);
+    s=scale4(0.7, 0.4, 0.7);
     modelViewMatrix=mult(mult(modelViewMatrix, t), s);
     DrawSolidSphere(0.5);
     modelViewMatrix=mvMatrixStack.pop();
 
     //draw body
     mvMatrixStack.push(modelViewMatrix);
+    lightAmbient = vec4(0.3, 0.1, 0.0, 1);
+    lightDiffuse = vec4(0.8, 0.4, 0.0, 1);
+    lightSpecular = vec4(1.0, 0.5, 0.0, 1);
+    materialAmbient = vec4(0.3, 0.1, 0.0, 1);
+    materialDiffuse = vec4(0.8, 0.4, 0.0, 1);
+    materialSpecular = vec4(1.0, 0.5, 0.0, 1);
+    materialShininess = 1;
+    SetupLightingMaterial();
     t=translate(0, 0, 0);
     s=scale4(2, 1, 0.5);
     modelViewMatrix=mult(mult(modelViewMatrix, t), s);
@@ -388,6 +474,14 @@ function DrawCar() {
 
     //draw cabin
     mvMatrixStack.push(modelViewMatrix);
+    lightAmbient = vec4(0.3, 0.1, 0.0, 1);
+    lightDiffuse = vec4(0.8, 0.4, 0.0, 1);
+    lightSpecular = vec4(1.0, 0.5, 0.0, 1);
+    materialAmbient = vec4(0.3, 0.1, 0.0, 1);
+    materialDiffuse = vec4(0.8, 0.4, 0.0, 1);
+    materialSpecular = vec4(1.0, 0.5, 0.0, 1);
+    materialShininess = 1;
+    SetupLightingMaterial();
     t=translate(-0.2, 0, 0.5);
     s=scale4(1.2, 0.8, 1.8);
     r=rotate(90, 1, 0, 0);
@@ -398,20 +492,78 @@ function DrawCar() {
 
     //draw windows
     mvMatrixStack.push(modelViewMatrix);
+    lightAmbient = vec4(0.8, 0.8, 1.0, 1);
+    lightDiffuse = vec4(0.8, 0.8, 1.0, 1);
+    lightSpecular = vec4(0.9, 0.9, 1.0, 1);
+    materialAmbient = vec4(0.8, 0.8, 1.0, 1);
+    materialDiffuse = vec4(0.8, 0.8, 1.0, 1);
+    materialSpecular = vec4(0.9, 0.9, 1.0, 1);
+    materialShininess = 50;
+    SetupLightingMaterial();
     t=translate(-0.2, 0, 0.5);
-    s=scale4(0.8, 0.4, 1.9);
+    s=scale4(0.9, 0.6, 1.9);
     r=rotate(90, 1, 0, 0);
     modelViewMatrix=mult(mult(mult(modelViewMatrix, t), r), s);
     gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(modelViewMatrix));
     DrawTrapezoid();
     modelViewMatrix=mvMatrixStack.pop();
 
-    //draw headlights using CONE
+    //draw windshield and rear windsheild with a trapezoid rotated at the angle of the front trapezoid face
+    mvMatrixStack.push(modelViewMatrix);
+    lightAmbient = vec4(0.8, 0.8, 1.0, 1);
+    lightDiffuse = vec4(0.8, 0.8, 1.0, 1);
+    lightSpecular = vec4(0.9, 0.9, 1.0, 1);
+    materialAmbient = vec4(0.8, 0.8, 1.0, 1);
+    materialDiffuse = vec4(0.8, 0.8, 1.0, 1);
+    materialSpecular = vec4(0.9, 0.9, 1.0, 1);
+    materialShininess = 50;
+    SetupLightingMaterial();
+    t=translate(-0.2, 0, 0.5);
+    s=scale4(1.3, 0.7, 1.5);
+    r=rotate(90, 1, 0, 0);
+    modelViewMatrix=mult(mult(mult(modelViewMatrix, t), r), s);
+    gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(modelViewMatrix));
+    DrawTrapezoid();
+    modelViewMatrix=mvMatrixStack.pop();
+
+
+    //draw headlights using spheres
+    mvMatrixStack.push(modelViewMatrix);
+    lightAmbient = vec4(1.0, 1.0, 0.8, 1);
+    lightDiffuse = vec4(1.0, 1.0, 0.8, 1);
+    lightSpecular = vec4(1.0, 1.0, 0.8, 1);
+    materialAmbient = vec4(1.0, 1.0, 0.8, 1);
+    materialDiffuse = vec4(1.0, 1.0, 0.8, 1);
+    materialSpecular = vec4(1.0, 1.0, 0.8, 1);
+    materialShininess = 100;
+    SetupLightingMaterial();
+    t=translate(0.9, 0.3, 0);
+    s=scale4(0.2, 0.2, 0.2);
+    modelViewMatrix=mult(mult(modelViewMatrix, t), s);
+    DrawSolidSphere(1);
+    modelViewMatrix=mvMatrixStack.pop();
+
+    mvMatrixStack.push(modelViewMatrix);
+    lightAmbient = vec4(1.0, 1.0, 0.8, 1);
+    lightDiffuse = vec4(1.0, 1.0, 0.8, 1);
+    lightSpecular = vec4(1.0, 1.0, 0.8, 1);
+    materialAmbient = vec4(1.0, 1.0, 0.4, 1);
+    materialDiffuse = vec4(1.0, 1.0, 0.4, 1);
+    materialSpecular = vec4(1.0, 1.0, 0.4, 1);
+    materialShininess = 100;
+    SetupLightingMaterial();
+    t=translate(0.9, -0.3, 0);
+    s=scale4(0.2, 0.2, 0.2);
+    modelViewMatrix=mult(mult(modelViewMatrix, t), s);
+    DrawSolidSphere(1);
+    modelViewMatrix=mvMatrixStack.pop();
+
 
 }
 
 function render()
 {
+  console.log("render");
 	var s, t, r;
 
 	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
@@ -421,6 +573,8 @@ function render()
   modelViewMatrix=lookAt(eye, at, up);
  	gl.uniformMatrix4fv(projectionMatrixLoc, false, flatten(projectionMatrix));
 	gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(modelViewMatrix));
+
+  modelViewMatrix = mult(rotationMatrix, modelViewMatrix);
 
 // 	// draw jack// what makes the sphere appear on the same surface?
 // 	mvMatrixStack.push(modelViewMatrix);
@@ -465,14 +619,14 @@ function render()
 	DrawWall(0.02);
 	modelViewMatrix=mvMatrixStack.pop();
 
-    // draw the car
-    mvMatrixStack.push(modelViewMatrix);
-    t=translate(0.6, 0.45, 0.6);
-    s=scale4(0.1, 0.1, 0.1);
-    //r=rotate(30, 1, 1, 0);
-    modelViewMatrix=mult(mult(mult(modelViewMatrix, t), r), s);
-    DrawCar();
-    modelViewMatrix=mvMatrixStack.pop();
+  // draw the car
+  mvMatrixStack.push(modelViewMatrix);
+  t=translate(0.6, 0.45, 0.6);
+  s=scale4(0.5, 0.5, 0.5);
+  //r=rotate(30, 1, 1, 0);
+  modelViewMatrix=mult(mult(mult(modelViewMatrix, t), r), s);
+  DrawCar();
+  modelViewMatrix=mvMatrixStack.pop();
 
   requestAnimFrame(render);
 }

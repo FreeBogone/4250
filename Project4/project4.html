@@ -13,8 +13,7 @@
     uniform vec4 lightPosition;
     uniform float shininess;
 
-    void
-    main()
+    void main()
     {
         vec3 pos = -(modelViewMatrix * vPosition).xyz;
         vec3 light = -(modelViewMatrix * lightPosition).xyz;
@@ -38,7 +37,6 @@
         if( dot(L, N) < 0.0 )  specular = vec4(0.0, 0.0, 0.0, 1.0);
 
         gl_Position = projectionMatrix * modelViewMatrix * vPosition ;
-
         fColor = ambient + diffuse +specular;
 
         fColor.a = 1.0;
@@ -60,11 +58,11 @@
 
   <script type="text/javascript" src="../Common/webgl-utils.js"></script>
   <script type="text/javascript" src="../Common/initShaders.js"></script>
-
   <script type="text/javascript" src="../Common/MV.js"></script>
   <script type="text/javascript" src="project4.js"></script>
 
   <body>
+    <body onload="main()"></body>
     <canvas id="gl-canvas" width="512" height="512">
       Oops ... your browser doesn't support the HTML5 canvas element
     </canvas>
