@@ -193,72 +193,7 @@ function DrawWall(thickness)
 
 // ******************************************
 // Draw composite objects
-// ******************************************
-function DrawJackPart()
-{
-	var s, t, r;
 
-	// draw one axis of the unit jack - a stretched sphere
-	mvMatrixStack.push(modelViewMatrix);
-
-  s=scale4(0.2, 0.2, 1.0);
-  modelViewMatrix = mult(modelViewMatrix, s);
-
-  DrawSolidSphere(1);
-
-  modelViewMatrix=mvMatrixStack.pop();
-
-	// ball on one end
-	mvMatrixStack.push(modelViewMatrix);
-
-  t=translate(0, 0, 1.2);
-  modelViewMatrix = mult(modelViewMatrix, t);
-	DrawSolidSphere(0.2);
-
-	// ball on the other end  -- notice there is no pop and push here
-	t=translate(0, 0, -2.4);
-  modelViewMatrix = mult(modelViewMatrix, t);
-	DrawSolidSphere(0.2);
-
-  modelViewMatrix=mvMatrixStack.pop();
-}
-
-function DrawJack()
-{
- 	var r;
-
-	// draw a unit jack out of spheres
-	mvMatrixStack.push(modelViewMatrix);
-	DrawJackPart();
-
-	r=rotate(90.0, 0, 1, 0);
-  modelViewMatrix = mult(modelViewMatrix, r);
-	DrawJackPart();
-	//modelViewMatrix=mvMatrixStack.pop();
-
-	//mvMatrixStack.push(modelViewMatrix);
-	r=rotate(-90.0, 0, 1, 0);
-  modelViewMatrix = mult(modelViewMatrix, r);
-  r=rotate(90.0, 1, 0, 0);
-  modelViewMatrix = mult(modelViewMatrix, r);
-	DrawJackPart();
-	modelViewMatrix=mvMatrixStack.pop();
-}
-
-function DrawTableLeg(thick, len)
-{
-	var s, t;
-
-	mvMatrixStack.push(modelViewMatrix);
-
-	t=translate(0, len/2, 0);
-	var s=scale4(thick, len, thick);
-  modelViewMatrix=mult(mult(modelViewMatrix, t), s);
-  gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(modelViewMatrix));
-	DrawSolidCube(1);
-
-	modelViewMatrix=mvMatrixStack.pop();
-}
 function DrawFirstFloor(unit){
   var s, t;
   mvMatrixStack.push(modelViewMatrix);
@@ -434,28 +369,13 @@ function render()
  	gl.uniformMatrix4fv(projectionMatrixLoc, false, flatten(projectionMatrix));
 	gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(modelViewMatrix));
 
-	// // draw jack// what makes the sphere appear on the same surface?
-	// mvMatrixStack.push(modelViewMatrix);
-	// t=translate(0.6, 0.45, 0.6);
-	// r=rotate(25, 0, 0, 1);
-	// s=scale4(0.1, 0.1, 0.1);
-	// modelViewMatrix=mult(mult(mult(modelViewMatrix, t), r), s);
-	// DrawJack();
-	// modelViewMatrix=mvMatrixStack.pop();
-
-	// // draw the sphere
+	
+	// draw the sphere
 	mvMatrixStack.push(modelViewMatrix);
 	t=translate(0.4, 0.1+0.2+0.02+0.2+0.02+0.2,0.4);
 	modelViewMatrix=mult(modelViewMatrix, t);
 	DrawSolidSphere(0.1);
 	modelViewMatrix=mvMatrixStack.pop();
-
-	// // draw the table
-	// mvMatrixStack.push(modelViewMatrix);
-	// t=translate(0.6, 0, 0.6);
-  // modelViewMatrix=mult(modelViewMatrix, t);
-	// DrawTable(0.6, 0.02, 0.02, 0.3);
-	// modelViewMatrix=mvMatrixStack.pop();
 
   // draw the first Floor
 	mvMatrixStack.push(modelViewMatrix);
