@@ -1,3 +1,15 @@
+// Bowen Truelove
+// CSCI 4250
+// Project 4 Part 1
+// 11/18/2024
+
+// No AI:
+
+// A.I. Disclaimer: All work for this assignment was completed by myself and entirely without 
+// the use of artificial intelligence tools such as ChatGPT, MS Copilot, other LLMs, etc
+
+
+
 var canvas;
 var gl, program;
 
@@ -9,6 +21,8 @@ var numTimesToSubdivide = 5;
 
 var pointsArray = [];
 var normalsArray = [];
+var pointsIndex = 0;
+var colorsArray = [];
 
 var left = -1;
 var right = 1;
@@ -17,8 +31,8 @@ var bottom = -1;
 var near = -10;
 var far = 10;
 var deg=5;
-var eye=[.3, .6, .6];
-var at=[.1, .1, 0];
+var eye=[.4, .6, .6];
+var at=[.0, .4, -0.3];
 var up=[0, 1, 0];
 
 var cubeCount=36;
@@ -30,23 +44,40 @@ var materialAmbient, materialDiffuse, materialSpecular;
 var materialShininess;
 
 var vertices = [
-    vec4( -0.5, -0.5,  0.5, 1.0 ),
-    vec4( -0.5,  0.5,  0.5, 1.0 ),
-    vec4( 0.5,  0.5,  0.5, 1.0 ),
-    vec4( 0.5, -0.5,  0.5, 1.0 ),
-    vec4( -0.5, -0.5, -0.5, 1.0 ),
-    vec4( -0.5,  0.5, -0.5, 1.0 ),
-    vec4( 0.5,  0.5, -0.5, 1.0 ),
-    vec4( 0.5, -0.5, -0.5, 1.0 ),
-    // Trapezoid Front and back vertices (wider bottom, narrower top)
-    vec4(-0.6, -0.5, 0.5, 1.0),    // 8: bottom left front
-    vec4(0.6, -0.5, 0.5, 1.0),     // 9: bottom right front
-    vec4(0.3, 0.5, 0.5, 1.0),      // 10: top right front
-    vec4(-0.3, 0.5, 0.5, 1.0),     // 11: top left front
-    vec4(-0.6, -0.5, -0.5, 1.0),   // 12: bottom left back
-    vec4(0.6, -0.5, -0.5, 1.0),    // 13: bottom right back
-    vec4(0.3, 0.5, -0.5, 1.0),     // 14: top right back
-    vec4(-0.3, 0.5, -0.5, 1.0)     // 15: top left back
+  vec4( -0.5, -0.5,  0.5, 1.0 ),
+  vec4( -0.5,  0.5,  0.5, 1.0 ),
+  vec4( 0.5,  0.5,  0.5, 1.0 ),
+  vec4( 0.5, -0.5,  0.5, 1.0 ),
+  vec4( -0.5, -0.5, -0.5, 1.0 ),
+  vec4( -0.5,  0.5, -0.5, 1.0 ),
+  vec4( 0.5,  0.5, -0.5, 1.0 ),
+  vec4( 0.5, -0.5, -0.5, 1.0 ),
+  // Trapezoid vertices (8-15)
+  vec4(-0.6, -0.5, 0.5, 1.0),
+  vec4(0.6, -0.5, 0.5, 1.0),
+  vec4(0.3, 0.5, 0.5, 1.0),
+  vec4(-0.3, 0.5, 0.5, 1.0),
+  vec4(-0.6, -0.5, -0.5, 1.0),
+  vec4(0.6, -0.5, -0.5, 1.0),
+  vec4(0.3, 0.5, -0.5, 1.0),
+  vec4(-0.3, 0.5, -0.5, 1.0),
+  // Spaceship vertices (16-31):
+  vec4( 0.0,  0.0,  1.2, 1.0 ),   
+  vec4(-0.2,  0.1,  0.6, 1.0 ),    
+  vec4( 0.2,  0.1,  0.6, 1.0 ),    
+  vec4(-0.2, -0.1,  0.6, 1.0 ),     
+  vec4( 0.2, -0.1,  0.6, 1.0 ),     
+  vec4(-0.3,  0.15, -0.6, 1.0 ),    
+  vec4( 0.3,  0.15, -0.6, 1.0 ),   
+  vec4(-0.3, -0.15, -0.6, 1.0 ),   
+  vec4( 0.3, -0.15, -0.6, 1.0 ),    
+  vec4(-0.9,  0.0,  0.0, 1.0 ),  
+  vec4( 0.9,  0.0,  0.0, 1.0 ),     
+  vec4(-0.2, -0.1, -0.8, 1.0 ),     
+  vec4( 0.2, -0.1, -0.8, 1.0 ),    
+  vec4(-0.2,  0.1, -0.8, 1.0 ),    
+  vec4( 0.2,  0.1, -0.8, 1.0 ),    
+  vec4( 0.0,  0.25, -0.2, 1.0 )     
 ];
 
 var va = vec4(0.0, 0.0, -1.0,1);
@@ -93,7 +124,7 @@ function handleMouseMove(event) {
     lastMouseX = newX;
     lastMouseY = newY;
 
-    render();
+    //render();
 }
 
 function main()
@@ -116,7 +147,9 @@ function main()
     colorCube();
     colorTrapezoid();
     tetrahedron(va, vb, vc, vd, numTimesToSubdivide);
-
+    console.log(pointsArray.length);
+    DrawMesh();
+    console.log(pointsArray.length);
     // pass data onto GPU
     var nBuffer = gl.createBuffer();
     gl.bindBuffer( gl.ARRAY_BUFFER, nBuffer);
@@ -225,15 +258,6 @@ function DrawTrapezoid() {
     modelViewMatrix = mvMatrixStack.pop();
 }
 
-function DrawSolidCone(radius, height) {
-    mvMatrixStack.push(modelViewMatrix);
-    s=scale4(radius, height, radius);
-    modelViewMatrix=mult(modelViewMatrix, s);
-    gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(modelViewMatrix));
-    gl.drawArrays(gl.TRIANGLES, 36, 108);
-    modelViewMatrix=mvMatrixStack.pop();
-}
-
 // start drawing the wall
 function DrawWall(thickness)
 {
@@ -262,111 +286,6 @@ function DrawWall(thickness)
 // ******************************************
 // Draw composite objects
 // ******************************************
-function DrawJackPart()
-{
-	var s, t, r;
-
-	// draw one axis of the unit jack - a stretched sphere
-	mvMatrixStack.push(modelViewMatrix);
-
-  s=scale4(0.2, 0.2, 1.0);
-  modelViewMatrix = mult(modelViewMatrix, s);
-
-  DrawSolidSphere(1);
-
-  modelViewMatrix=mvMatrixStack.pop();
-
-	// ball on one end
-	mvMatrixStack.push(modelViewMatrix);
-
-  t=translate(0, 0, 1.2);
-  modelViewMatrix = mult(modelViewMatrix, t);
-	DrawSolidSphere(0.2);
-
-	// ball on the other end  -- notice there is no pop and push here
-	t=translate(0, 0, -2.4);
-  modelViewMatrix = mult(modelViewMatrix, t);
-	DrawSolidSphere(0.2);
-
-  modelViewMatrix=mvMatrixStack.pop();
-}
-
-function DrawJack()
-{
- 	var r;
-
-	// draw a unit jack out of spheres
-	mvMatrixStack.push(modelViewMatrix);
-	DrawJackPart();
-
-	r=rotate(90.0, 0, 1, 0);
-  modelViewMatrix = mult(modelViewMatrix, r);
-	DrawJackPart();
-	//modelViewMatrix=mvMatrixStack.pop();
-
-	//mvMatrixStack.push(modelViewMatrix);
-	r=rotate(-90.0, 0, 1, 0);
-  modelViewMatrix = mult(modelViewMatrix, r);
-  r=rotate(90.0, 1, 0, 0);
-  modelViewMatrix = mult(modelViewMatrix, r);
-	DrawJackPart();
-	modelViewMatrix=mvMatrixStack.pop();
-}
-
-function DrawTableLeg(thick, len)
-{
-	var s, t;
-
-	mvMatrixStack.push(modelViewMatrix);
-
-	t=translate(0, len/2, 0);
-	var s=scale4(thick, len, thick);
-  modelViewMatrix=mult(mult(modelViewMatrix, t), s);
-  gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(modelViewMatrix));
-	DrawSolidCube(1);
-
-	modelViewMatrix=mvMatrixStack.pop();
-}
-
-function DrawTable(topWid, topThick, legThick, legLen)
-{
-	var s, t;
-
-	// draw the table top
-	mvMatrixStack.push(modelViewMatrix);
-
-  t=translate(0, legLen, 0);
-	s=scale4(topWid, topThick, topWid);
-  modelViewMatrix=mult(mult(modelViewMatrix, t), s);
-  gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(modelViewMatrix));
-	DrawSolidCube(1);
-
-  modelViewMatrix=mvMatrixStack.pop();
-
-	// place the four table legs
-	var dist = 0.95 * topWid / 2.0 - legThick / 2.0;
-	mvMatrixStack.push(modelViewMatrix);
-
-  t= translate(dist, 0, dist);
-  modelViewMatrix = mult(modelViewMatrix, t);
-	DrawTableLeg(legThick, legLen);
-
-  // no push and pop between leg placements
-	t=translate(0, 0, -2*dist);
-  modelViewMatrix = mult(modelViewMatrix, t);
-	DrawTableLeg(legThick, legLen);
-
-	t=translate(-2*dist, 0, 2*dist);
-  modelViewMatrix = mult(modelViewMatrix, t);
-	DrawTableLeg(legThick, legLen);
-
-	t=translate(0, 0, -2*dist);
-  modelViewMatrix = mult(modelViewMatrix, t);
-	DrawTableLeg(legThick, legLen);
-
-	modelViewMatrix=mvMatrixStack.pop();
-}
-
 function DrawTire() {
 
     lightAmbient = vec4(0.0, 0.0, 0.0, 1);
@@ -377,7 +296,7 @@ function DrawTire() {
     materialSpecular = vec4(0.0, 0.0, 0.0, 1);
     materialShininess = 1;
     SetupLightingMaterial();
-    //a tire is a cylinder
+    //a tire is a squashed sphere
     mvMatrixStack.push(modelViewMatrix);
 
     t=translate(0, 0, 0);
@@ -526,7 +445,6 @@ function DrawCar() {
     DrawTrapezoid();
     modelViewMatrix=mvMatrixStack.pop();
 
-
     //draw headlights using spheres
     mvMatrixStack.push(modelViewMatrix);
     lightAmbient = vec4(1.0, 1.0, 0.8, 1);
@@ -557,13 +475,55 @@ function DrawCar() {
     modelViewMatrix=mult(mult(modelViewMatrix, t), s);
     DrawSolidSphere(1);
     modelViewMatrix=mvMatrixStack.pop();
+}
 
+function DrawMesh() {
+  // POLYGONAL MESH OBJECT: SPACESHIP
+  // BOWEN TRUELOVE
 
+  // Main body
+  quad(17, 18, 22, 21); 
+  quad(19, 20, 24, 23); 
+  quad(17, 19, 23, 21); 
+  quad(18, 20, 24, 22);
+  
+  // Nose cone connections
+  tri(16, 17, 18); 
+  tri(16, 19, 20);  
+  tri(16, 17, 19);  
+  tri(16, 18, 20); 
+  
+  // Wings
+  tri(21, 25, 23);  
+  tri(23, 25, 27); 
+  tri(22, 26, 24);  
+  tri(24, 26, 28); 
+  tri(21, 22, 25);  
+  tri(21, 22, 26);  
+  tri(23, 24, 25);
+  tri(23, 24, 26);
+  tri(25, 21, 23);
+  tri(26, 22, 24);
+  tri(25, 21, 23);
+  
+  // Engine section
+  quad(27, 28, 30, 29);  
+  quad(23, 24, 28, 27);  
+  quad(21, 22, 30, 29);  
+  quad(21, 23, 27, 29);  
+  quad(22, 24, 28, 30);  
+  
+  // Rear connections
+  tri(21, 23, 29);  
+  tri(22, 24, 30);  
+  tri(23, 27, 29);  
+  tri(24, 28, 30);  
+  tri(27, 28, 29);  
+  tri(29, 30, 28);  
 }
 
 function render()
 {
-  console.log("render");
 	var s, t, r;
 
 	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
@@ -575,29 +535,6 @@ function render()
 	gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(modelViewMatrix));
 
   modelViewMatrix = mult(rotationMatrix, modelViewMatrix);
-
-// 	// draw jack// what makes the sphere appear on the same surface?
-// 	mvMatrixStack.push(modelViewMatrix);
-// 	t=translate(0.6, 0.45, 0.6);
-// 	r=rotate(25, 0, 0, 1);
-// 	s=scale4(0.1, 0.1, 0.1);
-// 	modelViewMatrix=mult(mult(mult(modelViewMatrix, t), r), s);
-// 	DrawJack();
-// 	modelViewMatrix=mvMatrixStack.pop();
-
-// 	// draw the sphere
-// 	mvMatrixStack.push(modelViewMatrix);
-// 	t=translate(0.25, 0.42,0.35);
-// 	modelViewMatrix=mult(modelViewMatrix, t);
-// 	DrawSolidSphere(0.1);
-// 	modelViewMatrix=mvMatrixStack.pop();
-
-// 	// draw the table
-// 	mvMatrixStack.push(modelViewMatrix);
-// 	t=translate(0.4, 0, 0.4);
-//   modelViewMatrix=mult(modelViewMatrix, t);
-// 	DrawTable(0.6, 0.02, 0.02, 0.3);
-// 	modelViewMatrix=mvMatrixStack.pop();
 
 	// wall # 1: in xz-plane
 	DrawWall(0.02);
@@ -621,12 +558,35 @@ function render()
 
   // draw the car
   mvMatrixStack.push(modelViewMatrix);
-  t=translate(0.6, 0.45, 0.6);
-  s=scale4(0.5, 0.5, 0.5);
+  t=translate(0.6, 0.2, 0.6);
+  s=scale4(0.2, 0.2, 0.2);
   //r=rotate(30, 1, 1, 0);
   modelViewMatrix=mult(mult(mult(modelViewMatrix, t), r), s);
   DrawCar();
   modelViewMatrix=mvMatrixStack.pop();
+
+  mvMatrixStack.push(modelViewMatrix);
+    
+  // Enhanced material properties for a metallic look
+  lightAmbient = vec4(0.2, 0.2, 0.2, 1.0);
+  lightDiffuse = vec4(0.8, 0.8, 0.8, 1.0);
+  lightSpecular = vec4(1.0, 1.0, 1.0, 1.0);
+  materialAmbient = vec4(0.2, 0.2, 0.2, 1.0);
+  materialDiffuse = vec4(0.8, 0.8, 0.8, 1.0);
+  materialSpecular = vec4(1.0, 1.0, 1.0, 1.0);
+  materialShininess = 100;
+  SetupLightingMaterial();
+
+  // Adjust position and orientation for better view
+  t = translate(0.6, 0.55, 0.7);
+  s = scale4(0.25, 0.25, 0.25);  
+  r = rotate(45, 0, 1, 0);       
+  modelViewMatrix = mult(mult(mult(modelViewMatrix, t), r), s);
+  gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(modelViewMatrix));
+  
+  // Draw the complete mesh
+  gl.drawArrays(gl.TRIANGLES, cubeCount + sphereCount, pointsArray.length - (cubeCount + sphereCount));
+  modelViewMatrix = mvMatrixStack.pop();
 
   requestAnimFrame(render);
 }
@@ -697,6 +657,20 @@ function quad(a, b, c, d)
      	normalsArray.push(normal);
      	pointsArray.push(vertices[d]);
      	normalsArray.push(normal);
+}
+
+function tri(a, b, c) {
+  // Calculate normal from two edges of the triangle
+  var t1 = subtract(vertices[b], vertices[a]);
+  var t2 = subtract(vertices[c], vertices[b]);
+  var normal = normalize(cross(t1, t2));
+
+  pointsArray.push(vertices[a]);
+  normalsArray.push(normal);
+  pointsArray.push(vertices[b]);
+  normalsArray.push(normal);
+  pointsArray.push(vertices[c]);
+  normalsArray.push(normal);
 }
 
 function colorCube()
