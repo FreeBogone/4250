@@ -2,28 +2,22 @@ var canvas;
 var gl;
 var image;
 var program;
-
 var eye;
 var near = -30;
 var far = 30;
-
 var left = -2.0;
 var right = 2.0;
 var ytop = 2.0;
 var bottom = -2.0;
-
 var modelViewMatrix, projectionMatrix;
 var modelViewMatrixLoc, projectionMatrixLoc;
 const at = vec3(0.0, 0.0, 0.0);
 const up = vec3(0.0, 1.0, 0.0);
-
 var modelView, projection;
 var viewerPos;
 var flag = true;
 var mvMatrixStack=[];
-
 var pointsArray = [];
-var colorsArray = [];
 var normalsArray = [];
 var lightPosition = vec4(0.5, 0.5, 0.5, 0);
 var lightAmbient, lightDiffuse, lightSpecular;
@@ -106,9 +100,9 @@ function createTrunkFaces() {
         pointsArray.push(bottom1, bottom2, top1); // First triangle
         pointsArray.push(bottom2, top2, top1);   // Second triangle
 
-        // Calculate normals for each face using Newell method
-        const normal1 = Newell([bottom1, bottom2, top1]);
-        const normal2 = Newell([bottom2, top2, top1]);
+        // Calculate normals for each face using Newell3 method
+        const normal1 = Newell3([bottom1, bottom2, top1]);
+        const normal2 = Newell3([bottom2, top2, top1]);
 
         // Push normals for each vertex of the two triangles
         normalsArray.push(normal1, normal1, normal1);
@@ -142,7 +136,7 @@ function createLeaves() {
         pointsArray.push(base1, base2, tip);
 
         // Compute normal for the triangle
-        const normal = Newell([base1, base2, tip]);
+        const normal = Newell3([base1, base2, tip]);
 
         // Push the normal for each vertex of the triangle
         normalsArray.push(normal, normal, normal);
@@ -158,7 +152,7 @@ function createLeaves() {
         pointsArray.push(base1, base2, center);
 
         // Compute normal for the base triangle
-        const normal = Newell([base1, base2, center]);
+        const normal = Newell3([base1, base2, center]);
 
         // Push the normal for each vertex of the triangle
         normalsArray.push(normal, normal, normal);
@@ -312,6 +306,7 @@ function render() {
     let leavesMatrix = mult(mult(modelViewMatrix, leavesTranslate), leavesScale);
     gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(leavesMatrix));
     gl.drawArrays(gl.TRIANGLES, 60, pointsArray.length - 60); // Remaining vertices are for the leaves
+    console.log(pointsArray.length - 60);
 
 }
 function scale4(a, b, c) {
@@ -321,8 +316,8 @@ function scale4(a, b, c) {
     result[2][2] = c;
     return result;
  }
-// Function to calculate normal vectors using the Newell method
-function Newell(vertices) {
+// Function to calculate normal vectors using the Newell3 method
+function Newell3(vertices) {
     let x = 0, y = 0, z = 0;
     const L = vertices.length;
     for (let i = 0; i < L; i++) {

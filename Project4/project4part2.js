@@ -80,6 +80,34 @@ var vertices = [
   vec4( 0.2,  0.1, -0.8, 1.0 ),    
   vec4( 0.0,  0.25, -0.2, 1.0 )     
 ];
+var trunkVertices = {
+  base: [  // Bottom decagon (base of the tree trunk)
+      vec4(Math.cos(0 * Math.PI / 5), 0.0, Math.sin(0 * Math.PI / 5), 1.0),
+      vec4(Math.cos(1 * Math.PI / 5), 0.0, Math.sin(1 * Math.PI / 5), 1.0),
+      vec4(Math.cos(2 * Math.PI / 5), 0.0, Math.sin(2 * Math.PI / 5), 1.0),
+      vec4(Math.cos(3 * Math.PI / 5), 0.0, Math.sin(3 * Math.PI / 5), 1.0),
+      vec4(Math.cos(4 * Math.PI / 5), 0.0, Math.sin(4 * Math.PI / 5), 1.0),
+      vec4(Math.cos(5 * Math.PI / 5), 0.0, Math.sin(5 * Math.PI / 5), 1.0),
+      vec4(Math.cos(6 * Math.PI / 5), 0.0, Math.sin(6 * Math.PI / 5), 1.0),
+      vec4(Math.cos(7 * Math.PI / 5), 0.0, Math.sin(7 * Math.PI / 5), 1.0),
+      vec4(Math.cos(8 * Math.PI / 5), 0.0, Math.sin(8 * Math.PI / 5), 1.0),
+      vec4(Math.cos(9 * Math.PI / 5), 0.0, Math.sin(9 * Math.PI / 5), 1.0)
+  ],
+  top: [   // Top smaller decagon (top of the tree trunk)
+      vec4(Math.cos(0 * Math.PI / 5) * 0.6, 1.0, Math.sin(0 * Math.PI / 5) * 0.6, 1.0),
+      vec4(Math.cos(1 * Math.PI / 5) * 0.6, 1.0, Math.sin(1 * Math.PI / 5) * 0.6, 1.0),
+      vec4(Math.cos(2 * Math.PI / 5) * 0.6, 1.0, Math.sin(2 * Math.PI / 5) * 0.6, 1.0),
+      vec4(Math.cos(3 * Math.PI / 5) * 0.6, 1.0, Math.sin(3 * Math.PI / 5) * 0.6, 1.0),
+      vec4(Math.cos(4 * Math.PI / 5) * 0.6, 1.0, Math.sin(4 * Math.PI / 5) * 0.6, 1.0),
+      vec4(Math.cos(5 * Math.PI / 5) * 0.6, 1.0, Math.sin(5 * Math.PI / 5) * 0.6, 1.0),
+      vec4(Math.cos(6 * Math.PI / 5) * 0.6, 1.0, Math.sin(6 * Math.PI / 5) * 0.6, 1.0),
+      vec4(Math.cos(7 * Math.PI / 5) * 0.6, 1.0, Math.sin(7 * Math.PI / 5) * 0.6, 1.0),
+      vec4(Math.cos(8 * Math.PI / 5) * 0.6, 1.0, Math.sin(8 * Math.PI / 5) * 0.6, 1.0),
+      vec4(Math.cos(9 * Math.PI / 5) * 0.6, 1.0, Math.sin(9 * Math.PI / 5) * 0.6, 1.0)
+  ]
+};
+
+var leavesTip = vec4(0.0, 2.0, 0.0, 1.0); // The tip is placed 2 units above the top of the trunk
 
 //Building initial 2d line points for surface of revolution  (25 points)
 var buildingPoints = [
@@ -177,11 +205,14 @@ function main()
     colorCube();
     colorTrapezoid();
     tetrahedron(va, vb, vc, vd, numTimesToSubdivide);
-    console.log(pointsArray.length);
+    // console.log(pointsArray.length);
     DrawMesh();
-    console.log(pointsArray.length);
+    // console.log(pointsArray.length);
     // generate the points
     SurfaceRevPoints();
+    //Draw tree
+    DrawTree();
+
     // pass data onto GPU
     var nBuffer = gl.createBuffer();
     gl.bindBuffer( gl.ARRAY_BUFFER, nBuffer);
@@ -250,10 +281,108 @@ function SetupLightingMaterial()
     gl.uniform4fv(gl.getUniformLocation(program, "lightPosition"), flatten(lightPosition));
     gl.uniform1f(gl.getUniformLocation(program, "shininess"), materialShininess);
 }
+function SetupTrunkMaterial() {
+  lightAmbient = vec4(0.2, 0.1, 0.05, 1.0);       // Earthy ambient light
+  lightDiffuse = vec4(0.6, 0.4, 0.3, 1.0);       // Warm diffuse light
+  lightSpecular = vec4(0.5, 0.3, 0.2, 1.0);      // Subtle specular highlight
+  materialAmbient = vec4(0.4, 0.2, 0.1, 1.0);    // Brown for ambient reflection
+  materialDiffuse = vec4(0.6, 0.4, 0.3, 1.0);    // Brighter brown for diffuse
+  materialSpecular = vec4(0.3, 0.2, 0.1, 1.0);   // Slight shine for wood
+  materialShininess = 30;                        // Moderate shininess
+  SetupLightingMaterial();
+}
+
+function SetupLeavesMaterial() {
+  lightAmbient = vec4(0.1, 0.3, 0.1, 1.0);       // Soft greenish ambient light
+  lightDiffuse = vec4(0.2, 0.8, 0.2, 1.0);       // Bright green diffuse light
+  lightSpecular = vec4(0.3, 0.9, 0.3, 1.0);      // Vibrant green specular light
+  materialAmbient = vec4(0.2, 0.6, 0.2, 1.0);    // Dark green for ambient reflection
+  materialDiffuse = vec4(0.4, 0.9, 0.4, 1.0);    // Lush green for diffuse reflection
+  materialSpecular = vec4(0.2, 0.8, 0.2, 1.0);   // Subtle highlight for leaves
+  materialShininess = 50;                        // High shininess for glossy leaves
+  SetupLightingMaterial();
+}
 
 // ******************************************
 // Draw simple and primitive objects
 // ******************************************
+
+// Create the sides of the trunk (connecting the base and top) with normals
+function createTrunkFaces() {
+  for (let i = 0; i < 10; i++) {
+      const bottom1 = trunkVertices.base[i];
+      const bottom2 = trunkVertices.base[(i + 1) % 10];
+      const top1 = trunkVertices.top[i];
+      const top2 = trunkVertices.top[(i + 1) % 10];
+
+      // Side face (quad split into two triangles)
+      pointsArray.push(bottom1, bottom2, top1); // First triangle
+      pointsArray.push(bottom2, top2, top1);   // Second triangle
+
+      // Calculate normals for each face using Newell3 method
+      const normal1 = Newell3([bottom1, bottom2, top1]);
+      const normal2 = Newell3([bottom2, top2, top1]);
+
+      // Push normals for each vertex of the two triangles
+      normalsArray.push(normal1, normal1, normal1);
+      normalsArray.push(normal2, normal2, normal2);
+  }
+}
+
+// Create the cone-shaped leaves above the trunk with normals
+function createLeaves() {
+  const leavesBaseRadius = 1.2;
+  const leavesBase = [];
+  const leavesHeight = 1;
+
+  // Define the base of the leaves
+  for (let i = 0; i < 10; i++) {
+      leavesBase.push(vec4(
+          Math.cos(i * Math.PI / 5) * leavesBaseRadius,
+          leavesHeight,
+          Math.sin(i * Math.PI / 5) * leavesBaseRadius,
+          1.0
+      ));
+  }
+
+  // Create cone faces
+  for (let i = 0; i < 10; i++) {
+      const base1 = leavesBase[i];
+      const base2 = leavesBase[(i + 1) % 10];
+      const tip = leavesTip;
+
+      // Add the face vertices
+      pointsArray.push(base1, base2, tip);
+
+      // Compute normal for the triangle
+      const normal = Newell3([base1, base2, tip]);
+
+      // Push the normal for each vertex of the triangle
+      normalsArray.push(normal, normal, normal);
+  }
+
+  // Close the base of the cone
+  for (let i = 0; i < 10; i++) {
+      const base1 = leavesBase[i];
+      const base2 = leavesBase[(i + 1) % 10];
+      const center = vec4(0.0, leavesHeight, 0.0, 1.0); // Center of the base
+
+      // Add the base face vertices
+      pointsArray.push(base1, base2, center);
+
+      // Compute normal for the base triangle
+      const normal = Newell3([base1, base2, center]);
+
+      // Push the normal for each vertex of the triangle
+      normalsArray.push(normal, normal, normal);
+  }
+}
+
+function DrawTree() {
+  createTrunkFaces(); // Call function to create the tree trunk faces
+  createLeaves();     // Call function to create the tree leaves (cone)
+
+}
 function DrawSolidSphere(radius)
 {
 	mvMatrixStack.push(modelViewMatrix);
@@ -1022,7 +1151,8 @@ function DrawRevolutionBuilding() {
   gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(modelViewMatrix));
 
   // Draw the surface
-  var startIndex = pointsArray.length - 24*24*6;
+  // var startIndex = pointsArray.length - 24*24*6;
+  var startIndex = pointsArray.length - 120 - 24*24*6;
   var vertexCount = 24*24*6;
   gl.drawArrays(gl.TRIANGLES, startIndex, vertexCount);
 
@@ -1164,7 +1294,8 @@ function render()
   materialSpecular = vec4(0.5, 0.5, 1.0, 1.0);
   materialShininess = 100;
   SetupLightingMaterial();
-  gl.drawArrays(gl.TRIANGLES, cubeCount + sphereCount, pointsArray.length - (cubeCount + sphereCount));
+  gl.drawArrays(gl.TRIANGLES, cubeCount + sphereCount, pointsArray.length - 120 - (cubeCount + sphereCount ));
+  // console.log("lenght = " + pointsArray.length);
   modelViewMatrix = mvMatrixStack.pop();
 
   //draw the surface rev building
@@ -1175,7 +1306,73 @@ function render()
   modelViewMatrix = mult(mult(modelViewMatrix, t), s);
   DrawRevolutionBuilding();
 
+  // Render Trunk
+  SetupTrunkMaterial(); // Apply trunk material and lighting
+  let trunkScale = scale4(0.12, 0.5, 0.12);
+  let trunkTranslate = translate(3, 0, 1.5);
+  mvMatrixStack.push(modelViewMatrix);
+
+  let trunkMatrix = mult(mult(modelViewMatrix, trunkTranslate), trunkScale);
+  gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(trunkMatrix));
+  gl.uniformMatrix4fv(projectionMatrixLoc, false, flatten(projectionMatrix));
+  gl.drawArrays(gl.TRIANGLES, 15933, 60); // First 60 vertices are for the trunk
+  modelViewMatrix=mvMatrixStack.pop();
+  // Render Leaves
+  SetupLeavesMaterial(); // Apply leaves material and lighting
+  let leavesScale = scale4(0.25, 0.5, 0.25); // Adjust if needed
+  let leavesTranslate = translate(3, 0, 1.5);
+  let leavesMatrix = mult(mult(modelViewMatrix, leavesTranslate), leavesScale);
+  gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(leavesMatrix));
+  gl.drawArrays(gl.TRIANGLES, 60 + 15933,  60); // Remaining vertices are for the leaves
+  // console.log(pointsArray.length - 60);
   requestAnimFrame(render);
+
+  //repeat tree
+  SetupTrunkMaterial(); // Apply trunk material and lighting
+   trunkScale = scale4(0.12, 0.5, 0.12);
+   trunkTranslate = translate(1, 0, 3);
+  mvMatrixStack.push(modelViewMatrix);
+
+   trunkMatrix = mult(mult(modelViewMatrix, trunkTranslate), trunkScale);
+  gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(trunkMatrix));
+  gl.uniformMatrix4fv(projectionMatrixLoc, false, flatten(projectionMatrix));
+  gl.drawArrays(gl.TRIANGLES, 15933, 60); // First 60 vertices are for the trunk
+  modelViewMatrix=mvMatrixStack.pop();
+
+
+  SetupLeavesMaterial(); // Apply leaves material and lighting
+   leavesScale = scale4(0.25, 0.5, 0.25); // Adjust if needed
+   leavesTranslate = translate(1, 0, 3);
+   leavesMatrix = mult(mult(modelViewMatrix, leavesTranslate), leavesScale);
+  gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(leavesMatrix));
+  gl.drawArrays(gl.TRIANGLES, 60 + 15933,  60); // Remaining vertices are for the leaves
+  // console.log(pointsArray.length - 60);
+  requestAnimFrame(render);
+  //end repeat
+
+  //repeat tree
+  SetupTrunkMaterial(); // Apply trunk material and lighting
+   trunkScale = scale4(0.12, 0.5, 0.12);
+   trunkTranslate = translate(1, 0, 3.7);
+  mvMatrixStack.push(modelViewMatrix);
+
+   trunkMatrix = mult(mult(modelViewMatrix, trunkTranslate), trunkScale);
+  gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(trunkMatrix));
+  gl.uniformMatrix4fv(projectionMatrixLoc, false, flatten(projectionMatrix));
+  gl.drawArrays(gl.TRIANGLES, 15933, 60); // First 60 vertices are for the trunk
+  modelViewMatrix=mvMatrixStack.pop();
+
+
+  SetupLeavesMaterial(); // Apply leaves material and lighting
+   leavesScale = scale4(0.25, 0.5, 0.25); // Adjust if needed
+   leavesTranslate = translate(1, 0, 3.7);
+   leavesMatrix = mult(mult(modelViewMatrix, leavesTranslate), leavesScale);
+  gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(leavesMatrix));
+  gl.drawArrays(gl.TRIANGLES, 60 + 15933,  60); // Remaining vertices are for the leaves
+  // console.log(pointsArray.length - 60);
+  requestAnimFrame(render);
+  //end repeat
+
 }
 
 // ******************************************
@@ -1337,4 +1534,17 @@ function scale4(a, b, c) {
    	result[1][1] = b;
    	result[2][2] = c;
    	return result;
+}
+// Function to calculate normal vectors using the Newell3 method
+function Newell3(vertices) {
+  let x = 0, y = 0, z = 0;
+  const L = vertices.length;
+  for (let i = 0; i < L; i++) {
+      const current = vertices[i];
+      const next = vertices[(i + 1) % L];
+      x += (current[1] - next[1]) * (current[2] + next[2]);
+      y += (current[2] - next[2]) * (current[0] + next[0]);
+      z += (current[0] - next[0]) * (current[1] + next[1]);
+  }
+  return normalize(vec3(x, y, z));
 }
