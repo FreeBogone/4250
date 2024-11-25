@@ -1,7 +1,7 @@
 // Bowen Truelove
 // CSCI 4250
-// Project 4 Part 1
-// 11/18/2024
+// Project 4 Part 2
+// 11/26/2024
 
 // No AI:
 
@@ -21,6 +21,8 @@ var pointsArray = [];
 var normalsArray = [];
 var pointsIndex = 0;
 var colorsArray = [];
+
+var buildingVertices = [];
 
 var left = -1;
 var right = 1;
@@ -76,6 +78,35 @@ var vertices = [
   vec4(-0.2,  0.1, -0.8, 1.0 ),    
   vec4( 0.2,  0.1, -0.8, 1.0 ),    
   vec4( 0.0,  0.25, -0.2, 1.0 )     
+];
+
+//Building initial 2d line points for surface of revolution  (25 points)
+var buildingPoints = [
+  [0,    0.0,   0.0],  // Base center
+  [0.15, 0.0,   0.0],  // Wide base
+  [0.13, 0.05,  0.0],  // Base start taper
+  [0.10, 0.10,  0.0],  // Base taper
+  [0.15, 0.15,  0.0],  // Continuing base taper
+  [0.10, 0.20,  0.0],  // Moving to shaft
+  [0.05, 0.25,  0.0],  // Narrow shaft begins
+  [0.04, 0.30,  0.0],  // Shaft
+  [0.04, 0.35,  0.0],  // Shaft continues
+  [0.04, 0.40,  0.0],  // Shaft maintains
+  [0.05, 0.45,  0.0],  // Start widening for deck
+  [0.08, 0.48,  0.0],  // Widening
+  [0.12, 0.50,  0.0],  // Almost to deck
+  [0.18, 0.52,  0.0],  // Observation deck base
+  [0.10, 0.53,  0.0],  // Observation deck widest
+  [0.10, 0.54,  0.0],  // Deck maintains
+  [0.18, 0.55,  0.0],  // Deck starts taper
+  [0.15, 0.56,  0.0],  // Deck tapers
+  [0.10, 0.57,  0.0],
+  [0.05, 0.60,  0.0],  // Spire base
+  [0.04, 0.63,  0.0],  // Spire
+  [0.03, 0.66,  0.0],
+  [0.02, 0.68,  0.0],  // Near top
+  [0.01, 0.69,  0.0],
+  [0,    0.70,  0.0],  // Top point
 ];
 
 var va = vec4(0.0, 0.0, -1.0,1);
@@ -148,6 +179,8 @@ function main()
     console.log(pointsArray.length);
     DrawMesh();
     console.log(pointsArray.length);
+    // generate the points
+    SurfaceRevPoints();
     // pass data onto GPU
     var nBuffer = gl.createBuffer();
     gl.bindBuffer( gl.ARRAY_BUFFER, nBuffer);
@@ -259,14 +292,14 @@ function DrawTrapezoid() {
 // start drawing the wall
 function DrawWall(thickness)
 {
-  lightAmbient = vec4(0.1, 0.1, 0.3, 1);
-  lightDiffuse = vec4(0.1, 0.1, 0.3, 1);
-  lightSpecular = vec4(0.1, 0.1, 0.3, 1);
-  materialAmbient = vec4(0.0, 0.0, 0.5, 1);
-  materialDiffuse = vec4(0.0, 0.0, 0.8, 1);
-  materialSpecular = vec4(0.0, 0.0, 1.0, 1);
-  materialShininess = 6;
-  SetupLightingMaterial();
+  // lightAmbient = vec4(0.1, 0.1, 0.3, 1);
+  // lightDiffuse = vec4(0.1, 0.1, 0.3, 1);
+  // lightSpecular = vec4(0.1, 0.1, 0.3, 1);
+  // materialAmbient = vec4(0.0, 0.0, 0.5, 1);
+  // materialDiffuse = vec4(0.0, 0.0, 0.8, 1);
+  // materialSpecular = vec4(0.0, 0.0, 1.0, 1);
+  // materialShininess = 6;
+  // SetupLightingMaterial();
 	var s, t, r;
 
 	// draw thin wall with top = xz-plane, corner at origin
@@ -784,6 +817,141 @@ function DrawBuilding() {
   modelViewMatrix=mvMatrixStack.pop();
 }
 
+function DrawRoad() {
+  //Draw the road using cubes scaled and translated
+  //COMPOSITE OBJECT: ROAD
+  //SIMPLE OBJECTS: CUBE
+
+  // draw the tarmac
+  mvMatrixStack.push(modelViewMatrix);
+  lightAmbient = vec4(0.0, 0.0, 0.0, 1);
+  lightDiffuse = vec4(0.0, 0.0, 0.0, 1);
+  lightSpecular = vec4(0.0, 0.0, 0.0, 1);
+  materialAmbient = vec4(0.0, 0.0, 0.0, 1);
+  materialDiffuse = vec4(0.0, 0.0, 0.0, 1);
+  materialSpecular = vec4(0.0, 0.0, 0.0, 1);
+  materialShininess = 50;
+  SetupLightingMaterial();
+  t=translate(1.95, 0.02, 1.4);
+  s=scale4(2.1, 0.05, 0.8);
+  modelViewMatrix=mult(mult(modelViewMatrix, t), s);
+  gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(modelViewMatrix));
+  DrawSolidCube(1);
+  modelViewMatrix=mvMatrixStack.pop();
+
+  mvMatrixStack.push(modelViewMatrix);
+  lightAmbient = vec4(0.0, 0.0, 0.0, 1);
+  lightDiffuse = vec4(0.0, 0.0, 0.0, 1);
+  lightSpecular = vec4(0.0, 0.0, 0.0, 1);
+  materialAmbient = vec4(0.0, 0.0, 0.0, 1);
+  materialDiffuse = vec4(0.0, 0.0, 0.0, 1);
+  materialSpecular = vec4(0.0, 0.0, 0.0, 1);
+  materialShininess = 50;
+  SetupLightingMaterial();
+  t=translate(1.3, 0.02, 2.1);
+  s=scale4(0.8, 0.05, 1.85);
+  modelViewMatrix=mult(mult(modelViewMatrix, t), s);
+  gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(modelViewMatrix));
+  DrawSolidCube(1);
+  modelViewMatrix=mvMatrixStack.pop();
+
+  //draw the lines on the road using a loop
+  // mvMatrixStack.push(modelViewMatrix);
+  // lightAmbient = vec4(1.0, 1.0, 1.0, 1);
+  // lightDiffuse = vec4(1.0, 1.0, 1.0, 1);
+  // lightSpecular = vec4(1.0, 1.0, 1.0, 1);
+  // materialAmbient = vec4(1.0, 1.0, 1.0, 1);
+  // materialDiffuse = vec4(1.0, 1.0, 1.0, 1);
+  // materialSpecular = vec4(1.0, 1.0, 1.0, 1);
+  // materialShininess = 50;
+  // SetupLightingMaterial();
+  // t=translate(1.95, 0.1, 1.4);
+  // s=scale4(2.1, 0.01, 0.01);
+  // modelViewMatrix=mult(mult(modelViewMatrix, t), s);
+  // gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(modelViewMatrix));
+  // DrawSolidCube(1);
+  // modelViewMatrix=mvMatrixStack.pop();
+var numDashes = 9;
+var dashLength = 0.1;
+var gapLength = 0.1;
+
+  for (var i = 0; i < numDashes; i++) {
+    var offset = i * (dashLength + gapLength);
+    mvMatrixStack.push(modelViewMatrix);
+    lightAmbient = vec4(1.0, 1.0, 1.0, 1);
+    lightDiffuse = vec4(1.0, 1.0, 1.0, 1);
+    lightSpecular = vec4(1.0, 1.0, 1.0, 1);
+    materialAmbient = vec4(1.0, 1.0, 1.0, 1);
+    materialDiffuse = vec4(1.0, 1.0, 1.0, 1);
+    materialSpecular = vec4(1.0, 1.0, 1.0, 1);
+    materialShininess = 50;
+    SetupLightingMaterial();
+    t = translate(2.95 - offset, 0.05, 1.4);
+    s = scale4(dashLength, 0.01, 0.05);
+    modelViewMatrix = mult(mult(modelViewMatrix, t), s);
+    gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(modelViewMatrix));
+    DrawSolidCube(1);
+    modelViewMatrix = mvMatrixStack.pop();
+  }
+
+  for (var i = 0; i < numDashes; i++) {
+    var offset = i * (dashLength + gapLength);
+    mvMatrixStack.push(modelViewMatrix);
+    lightAmbient = vec4(1.0, 1.0, 1.0, 1);
+    lightDiffuse = vec4(1.0, 1.0, 1.0, 1);
+    lightSpecular = vec4(1.0, 1.0, 1.0, 1);
+    materialAmbient = vec4(1.0, 1.0, 1.0, 1);
+    materialDiffuse = vec4(1.0, 1.0, 1.0, 1);
+    materialSpecular = vec4(1.0, 1.0, 1.0, 1);
+    materialShininess = 50;
+    SetupLightingMaterial();
+    t = translate(1.3, 0.05, 3 - offset);
+    s = scale4(dashLength, 0.01, 0.05);
+    r = rotate(90, 0, 1, 0);
+    modelViewMatrix = mult(mult(mult(modelViewMatrix, t), r), s);
+    gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(modelViewMatrix));
+    DrawSolidCube(1);
+    modelViewMatrix = mvMatrixStack.pop();
+  }
+}
+
+//Sets up the vertices array so the building can be drawn
+function SurfaceRevPoints()
+{
+	//Setup initial points matrix
+	for (var i = 0; i<25; i++)
+	{
+		buildingVertices.push(vec4(buildingPoints[i][0], buildingPoints[i][1],
+      buildingPoints[i][2], 1));
+	}
+
+	var r;
+        var t=Math.PI/12;
+
+        // sweep the original curve another "angle" degree
+	       for (var j = 0; j < 24; j++)
+	        {
+                var angle = (j+1)*t;
+
+                // for each sweeping step, generate 25 new points corresponding to the original points
+		           for(var i = 0; i < 25 ; i++ )
+		           {
+		                r = buildingVertices[i][0];
+                    buildingVertices.push(vec4(r*Math.cos(angle), buildingVertices[i][1], -r*Math.sin(angle), 1));
+		           }
+	       }
+
+       var N=25;
+       // quad strips are formed slice by slice (not layer by layer)
+       for (var i=0; i<24; i++) // slices
+       {
+           for (var j=0; j<24; j++)  // layers
+           {
+		           surfaceRevQuad(i*N+j, (i+1)*N+j, (i+1)*N+(j+1), i*N+(j+1));
+           }
+       }
+}
+
 function DrawMesh() {
   // POLYGONAL MESH OBJECT: SPACESHIP
   // BOWEN TRUELOVE
@@ -827,6 +995,82 @@ function DrawMesh() {
   tri(24, 28, 30);  
   tri(27, 28, 29);  
   tri(29, 30, 28);  
+
+  // Update sphereCount after drawing the spaceship
+  sphereCount += 36;
+}
+
+function DrawRevolutionBuilding() {
+  mvMatrixStack.push(modelViewMatrix);
+  
+  // Set up materials for visibility
+  lightAmbient = vec4(0.2, 0.2, 0.2, 1.0);
+  lightDiffuse = vec4(0.4, 0.4, 0.4, 1.0);
+  lightSpecular = vec4(0.6, 0.6, 0.6, 1.0);
+  materialAmbient = vec4(0.5, 0.8, 0.5, 1.0);
+  materialDiffuse = vec4(0.4, 0.7, 0.4, 1.0);
+  materialSpecular = vec4(0.6, 0.9, 0.6, 1.0);
+  materialShininess = 100;
+  SetupLightingMaterial();
+
+  // Adjust position and scale
+  t = translate(2, 0.2, 1.6);
+  s = scale4(2.0, 3.0, 2.0);  // Increased scale
+  //r = rotate(180, 0, 0, 1);     // Rotate to face the camera
+  modelViewMatrix = mult(mult(modelViewMatrix, t), s);
+  gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(modelViewMatrix));
+
+  // Draw the surface
+  var startIndex = pointsArray.length - 24*24*6;
+  var vertexCount = 24*24*6;
+  gl.drawArrays(gl.TRIANGLES, startIndex, vertexCount);
+
+  //draw cubes around base to make it look like a building
+  var numCubes = 12;
+  var radius = 0.075;
+  var cubeSize = 0.15;
+
+  for (var i = 0; i < numCubes; i++) {
+    var angle = (i / numCubes) * 2 * Math.PI;
+    var x = radius * Math.cos(angle);
+    var z = radius * Math.sin(angle);
+
+    mvMatrixStack.push(modelViewMatrix);
+    lightAmbient = vec4(0.5, 0.5, 0.5, 1.0);
+    lightDiffuse = vec4(0.5, 0.5, 0.5, 1.0);
+    lightSpecular = vec4(0.5, 0.5, 0.5, 1.0);
+    materialAmbient = vec4(0.5, 0.5, 0.5, 1.0);
+    materialDiffuse = vec4(0.5, 0.5, 0.5, 1.0);
+    materialSpecular = vec4(0.5, 0.5, 0.5, 1.0);
+    materialShininess = 100;
+    SetupLightingMaterial();
+    t = translate(x, 0.06, z);
+    s = scale4(cubeSize, 0.2, cubeSize);
+    modelViewMatrix = mult(mult(modelViewMatrix, t), s);
+    gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(modelViewMatrix));
+    DrawSolidCube(1);
+    modelViewMatrix = mvMatrixStack.pop();
+  }
+  
+
+  // Draw squashed sphere at the top
+  mvMatrixStack.push(modelViewMatrix);
+  lightAmbient = vec4(1.0, 1.0, 1.0, 1.0);
+  lightDiffuse = vec4(1.0, 1.0, 1.0, 1.0);
+  lightSpecular = vec4(1.0, 1.0, 1.0, 1.0);
+  materialAmbient = vec4(1.0, 1.0, 1.0, 1.0);
+  materialDiffuse = vec4(1.0, 1.0, 1.0, 1.0);
+  materialSpecular = vec4(1.0, 1.0, 1.0, 1.0);
+  materialShininess = 100;
+  SetupLightingMaterial();
+  t = translate(0, 0.535, 0);
+  s = scale4(0.2, 0.03, 0.2);
+  modelViewMatrix = mult(mult(modelViewMatrix, t), s);
+  gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(modelViewMatrix));
+  DrawSolidSphere(1);
+  modelViewMatrix = mvMatrixStack.pop();
+
+  modelViewMatrix = mvMatrixStack.pop();
 }
 
 function render()
@@ -844,35 +1088,60 @@ function render()
   modelViewMatrix = mult(rotationMatrix, modelViewMatrix);
 
   mvMatrixStack.push(modelViewMatrix);
-  t=translate(-0.5, 0.0, 0.0);
+  t=translate(-0.5, 0.0, 0.3);
   s=scale4(2.6, 2.6, 2.6);
   modelViewMatrix=mult(mult(modelViewMatrix, t), s);
   DrawBuilding();
   modelViewMatrix=mvMatrixStack.pop();
 
 	// wall # 1: in xz-plane
+  lightAmbient = vec4(0.2, 0.2, 0.2, 1);
+  lightDiffuse = vec4(0.8, 0.8, 0.8, 1);
+  lightSpecular = vec4(1.0, 1.0, 1.0, 1);
+  materialAmbient = vec4(0.5, 0.5, 0.5, 1);
+  materialDiffuse = vec4(0.7, 0.7, 0.7, 1);
+  materialSpecular = vec4(1.0, 1.0, 1.0, 1);
+  materialShininess = 100;
+  SetupLightingMaterial();
 	DrawWall(0.02);
-
 
 	// wall #2: in yz-plane
 	mvMatrixStack.push(modelViewMatrix);
+  lightAmbient = vec4(0.1, 0.1, 0.3, 1);
+  lightDiffuse = vec4(0.1, 0.1, 0.3, 1);
+  lightSpecular = vec4(0.1, 0.1, 0.3, 1);
+  materialAmbient = vec4(0.0, 0.0, 0.5, 1);
+  materialDiffuse = vec4(0.0, 0.0, 0.8, 1);
+  materialSpecular = vec4(0.0, 0.0, 1.0, 1);
+  materialShininess = 0;
+  SetupLightingMaterial();
 	r=rotate(90.0, 0.0, 0.0, 1.0);
   modelViewMatrix=mult(modelViewMatrix, r);
 	DrawWall(0);
 	modelViewMatrix=mvMatrixStack.pop();
 
-
 	// wall #3: in xy-plane
 	mvMatrixStack.push(modelViewMatrix);
+  lightAmbient = vec4(0.1, 0.1, 0.3, 1);
+  lightDiffuse = vec4(0.1, 0.1, 0.3, 1);
+  lightSpecular = vec4(0.1, 0.1, 0.3, 1);
+  materialAmbient = vec4(0.0, 0.0, 0.5, 1);
+  materialDiffuse = vec4(0.0, 0.0, 0.8, 1);
+  materialSpecular = vec4(0.0, 0.0, 1.0, 1);
+  materialShininess = 0;
+  SetupLightingMaterial();
 	r=rotate(-90, 1.0, 0.0, 0.0);
 	//r=rotate(90, 1.0, 0.0, 0.0);  // ??
   modelViewMatrix=mult(modelViewMatrix, r);
 	DrawWall(0.02);
 	modelViewMatrix=mvMatrixStack.pop();
 
+  //draw road
+  DrawRoad();
+
   // draw the car
   mvMatrixStack.push(modelViewMatrix);
-  t=translate(1.6, 0.15, 0.6);
+  t=translate(1.6, 0.15, 1.2);
   s=scale4(0.2, 0.2, 0.2);
   //r=rotate(30, 1, 1, 0);
   modelViewMatrix=mult(mult(mult(modelViewMatrix, t), r), s);
@@ -880,26 +1149,30 @@ function render()
   modelViewMatrix=mvMatrixStack.pop();
 
   mvMatrixStack.push(modelViewMatrix);
-    
-  // Enhanced material properties for a metallic look
-  lightAmbient = vec4(0.2, 0.2, 0.2, 1.0);
-  lightDiffuse = vec4(0.8, 0.8, 0.8, 1.0);
-  lightSpecular = vec4(1.0, 1.0, 1.0, 1.0);
-  materialAmbient = vec4(0.2, 0.2, 0.2, 1.0);
-  materialDiffuse = vec4(0.8, 0.8, 0.8, 1.0);
-  materialSpecular = vec4(1.0, 1.0, 1.0, 1.0);
-  materialShininess = 100;
-  SetupLightingMaterial();
-
   // Adjust position and orientation for better view
   t = translate(1.6, 0.55, 1.7);
   s = scale4(0.25, 0.25, 0.25);  
   r = rotate(45, 0, 1, 0);       
   modelViewMatrix = mult(mult(mult(modelViewMatrix, t), r), s);
   gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(modelViewMatrix));
-  // Draw the complete mesh
+  lightAmbient = vec4(0.1, 0.1, 0.3, 1.0);
+  lightDiffuse = vec4(0.3, 0.3, 0.8, 1.0);
+  lightSpecular = vec4(0.5, 0.5, 1.0, 1.0);
+  materialAmbient = vec4(0.5, 0.5, 1.0, 1.0);
+  materialDiffuse = vec4(0.3, 0.3, 0.8, 1.0);
+  materialSpecular = vec4(0.5, 0.5, 1.0, 1.0);
+  materialShininess = 100;
+  SetupLightingMaterial();
   gl.drawArrays(gl.TRIANGLES, cubeCount + sphereCount, pointsArray.length - (cubeCount + sphereCount));
   modelViewMatrix = mvMatrixStack.pop();
+
+  //draw the surface rev building
+  mvMatrixStack.push(modelViewMatrix);
+  // Adjust position and orientation for better view
+  t = translate(-0.6, 0, -1);
+  s = scale4(1, 1, 1);        
+  modelViewMatrix = mult(mult(modelViewMatrix, t), s);
+  DrawRevolutionBuilding();
 
   requestAnimFrame(render);
 }
@@ -984,6 +1257,54 @@ function tri(a, b, c) {
   normalsArray.push(normal);
   pointsArray.push(vertices[c]);
   normalsArray.push(normal);
+}
+
+function surfaceRevQuad(a, b, c, d) {
+
+  var indices=[a, b, c, d];
+  var normal = Newell(indices);
+
+  // triangle a-b-c
+  pointsArray.push(buildingVertices[a]);
+  normalsArray.push(normal);
+
+  pointsArray.push(buildingVertices[b]);
+  normalsArray.push(normal);
+
+  pointsArray.push(buildingVertices[c]);
+  normalsArray.push(normal);
+
+  // triangle a-c-d
+  pointsArray.push(buildingVertices[a]);
+  normalsArray.push(normal);
+
+  pointsArray.push(buildingVertices[c]);
+  normalsArray.push(normal);
+
+  pointsArray.push(buildingVertices[d]);
+  normalsArray.push(normal);
+}
+
+function Newell(indices)
+{
+   var L=indices.length;
+   var x=0, y=0, z=0;
+   var index, nextIndex;
+
+   for (var i=0; i<L; i++)
+   {
+       index=indices[i];
+       nextIndex = indices[(i+1)%L];
+
+       x += (buildingVertices[index][1] - buildingVertices[nextIndex][1])*
+            (buildingVertices[index][2] + buildingVertices[nextIndex][2]);
+       y += (buildingVertices[index][2] - buildingVertices[nextIndex][2])*
+            (buildingVertices[index][0] + buildingVertices[nextIndex][0]);
+       z += (buildingVertices[index][0] - buildingVertices[nextIndex][0])*
+            (buildingVertices[index][1] + buildingVertices[nextIndex][1]);
+   }
+
+   return (normalize(vec3(x, y, z)));
 }
 
 function colorCube()
