@@ -1,4 +1,5 @@
 // Bowen Truelove
+// Zeiad Abdelkhalik
 // CSCI 4250
 // Project 4 Part 2
 // 11/26/2024
@@ -1284,7 +1285,9 @@ function surfaceRevQuad(a, b, c, d) {
   pointsArray.push(buildingVertices[d]);
   normalsArray.push(normal);
 }
+// Start Creating Tree
 
+// End Creating Tree
 function Newell(indices)
 {
    var L=indices.length;
