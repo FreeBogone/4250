@@ -9,6 +9,31 @@
 // A.I. Disclaimer: All work for this assignment was completed by myself and entirely without 
 // the use of artificial intelligence tools such as ChatGPT, MS Copilot, other LLMs, etc
 
+
+/*
+Objects completed in Part 1: 
+1. Composite Object: Car
+    Completed by: Bowen Truelove
+2. Mesh Object: Spaceship
+    Completed by: Bowen Truelove
+3. Composite Object: Decorative Building
+    Completed by: Zeiad Abdelkhalik
+4. Mesh Object: Tree
+    Completed by: Zeiad Abdelkhalik
+*/
+
+/*
+Objects completed in Part 2: 
+1. Extruded Shape Object: Building
+    Completed by: Zeiad Abdelkhalik
+2. Surface of Revolution Object: Futuristic, Toronto inspired Building
+    Completed by: Bowen Truelove
+3. Composite Object: Road
+    Completed by: Bowen Truelove
+4. Animation: Car moving along the road
+    Completed by: Bowen Truelove
+*/
+
 var canvas;
 var gl, program;
 
@@ -112,7 +137,6 @@ var trunkVertices = {
 
 var leavesTip = vec4(0.0, 2.0, 0.0, 1.0); // The tip is placed 2 units above the top of the trunk
 
-//Building initial 2d line points for surface of revolution  (25 points)
 var buildingPoints = [
   [0,    0.0,   0.0],  // Base center
   [0.15, 0.0,   0.0],  // Wide base
@@ -213,16 +237,13 @@ function main()
     program = initShaders( gl, "vertex-shader", "fragment-shader" );
     gl.useProgram( program );
 
-    // generate the points/normals
     colorCube();
     colorTrapezoid();
     tetrahedron(va, vb, vc, vd, numTimesToSubdivide);
     // console.log(pointsArray.length);
     DrawMesh();
     // console.log(pointsArray.length);
-    // generate the points
     SurfaceRevPoints();
-    //Draw tree
     DrawTree();
 
     ExtrudedTriangle();
@@ -590,28 +611,6 @@ function DrawWall(thickness)
 // ******************************************
 // Draw composite objects
 // ******************************************
-function DrawTire() {
-
-    lightAmbient = vec4(0.0, 0.0, 0.0, 1);
-    lightDiffuse = vec4(0.0, 0.0, 0.0, 1);
-    lightSpecular = vec4(0.0, 0.0, 0.0, 1);
-    materialAmbient = vec4(0.0, 0.0, 0.0, 1);
-    materialDiffuse = vec4(0.0, 0.0, 0.0, 1);
-    materialSpecular = vec4(0.0, 0.0, 0.0, 1);
-    materialShininess = 1;
-    SetupLightingMaterial();
-    //a tire is a squashed sphere
-    mvMatrixStack.push(modelViewMatrix);
-
-    t=translate(0, 0, 0);
-    s=scale4(1, 1, 0.5);
-    modelViewMatrix=mult(mult(modelViewMatrix, t), s);
-    gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(modelViewMatrix));
-    DrawSolidCylinder(0.5, 0.5);
-
-    modelViewMatrix=mvMatrixStack.pop();
-}
-
 function DrawCar() {
 
     //COMPOSITE OBJECT: CAR
@@ -1274,6 +1273,8 @@ function DrawMesh() {
 }
 
 function DrawRevolutionBuilding() {
+  // Draw the building using a surface of revolution
+  // BOWEN TRUELOVE
   mvMatrixStack.push(modelViewMatrix);
   
   // Set up materials for visibility
@@ -1348,22 +1349,23 @@ function DrawRevolutionBuilding() {
 }
 
 function animateCar() {
+  // Bowen Treulove
   if (carAnimating) {
       if (carPosition < 1) {
-          // First straight section
+          // first section
           var x = carStart.x + (carTurn.x - carStart.x) * carPosition;
           var z = carStart.z;
           
           mvMatrixStack.push(modelViewMatrix);
           t = translate(x, carStart.y, z);
           s = scale4(0.2, 0.2, 0.2);
-          // First rotate 90 degrees around X to make car upright, then rotate around Y for direction
+          // make car upright
           r = mult(rotate(180, 0, 0, 1), rotate(90, 1, 0, 0));
           modelViewMatrix = mult(mult(mult(modelViewMatrix, t), r), s);
           DrawCar();
           modelViewMatrix = mvMatrixStack.pop();
       } else if (carPosition < 2) {
-          // Second straight section
+          // second straight section
           var progress = carPosition - 1;
           var x = carTurn.x;
           var z = carTurn.z + (carEnd.z - carTurn.z) * progress;
@@ -1383,7 +1385,7 @@ function animateCar() {
       
       carPosition += animationSpeed;
   } else {
-      // Draw car in default position when not animating
+      // draw car in default position when not animating
       mvMatrixStack.push(modelViewMatrix);
       t = translate(carStart.x, carStart.y, carStart.z);
       s = scale4(0.2, 0.2, 0.2);
@@ -1716,9 +1718,7 @@ function surfaceRevQuad(a, b, c, d) {
   pointsArray.push(buildingVertices[d]);
   normalsArray.push(normal);
 }
-// Start Creating Tree
 
-// End Creating Tree
 function Newell(indices)
 {
    var L=indices.length;
