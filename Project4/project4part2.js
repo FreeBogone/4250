@@ -1295,10 +1295,10 @@ function DrawRevolutionBuilding() {
   gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(modelViewMatrix));
 
   // Draw the surface
-  // var startIndex = pointsArray.length - 24*24*6;
+  // var startIndex = pointsArray.length - 24*24*6;a
   var startIndex = pointsArray.length - 120 - 24*24*6;
   var vertexCount = 24*24*6;
-  gl.drawArrays(gl.TRIANGLES, startIndex, vertexCount-50);
+  gl.drawArrays(gl.TRIANGLES, startIndex, vertexCount-35);
 
   //draw cubes around base to make it look like a building
   var numCubes = 12;
