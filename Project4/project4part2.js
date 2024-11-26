@@ -1327,51 +1327,51 @@ function render()
   // console.log(pointsArray.length - 60);
   requestAnimFrame(render);
 
-  //repeat tree
-  SetupTrunkMaterial(); // Apply trunk material and lighting
-   trunkScale = scale4(0.12, 0.5, 0.12);
-   trunkTranslate = translate(1, 0, 3);
-  mvMatrixStack.push(modelViewMatrix);
+  // //repeat tree
+  // SetupTrunkMaterial(); // Apply trunk material and lighting
+  //  trunkScale = scale4(0.12, 0.5, 0.12);
+  //  trunkTranslate = translate(1, 0, 3);
+  // mvMatrixStack.push(modelViewMatrix);
 
-   trunkMatrix = mult(mult(modelViewMatrix, trunkTranslate), trunkScale);
-  gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(trunkMatrix));
-  gl.uniformMatrix4fv(projectionMatrixLoc, false, flatten(projectionMatrix));
-  gl.drawArrays(gl.TRIANGLES, 15933, 60); // First 60 vertices are for the trunk
-  modelViewMatrix=mvMatrixStack.pop();
-
-
-  SetupLeavesMaterial(); // Apply leaves material and lighting
-   leavesScale = scale4(0.25, 0.5, 0.25); // Adjust if needed
-   leavesTranslate = translate(1, 0, 3);
-   leavesMatrix = mult(mult(modelViewMatrix, leavesTranslate), leavesScale);
-  gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(leavesMatrix));
-  gl.drawArrays(gl.TRIANGLES, 60 + 15933,  60); // Remaining vertices are for the leaves
-  // console.log(pointsArray.length - 60);
-  requestAnimFrame(render);
-  //end repeat
-
-  //repeat tree
-  SetupTrunkMaterial(); // Apply trunk material and lighting
-   trunkScale = scale4(0.12, 0.5, 0.12);
-   trunkTranslate = translate(1, 0, 3.7);
-  mvMatrixStack.push(modelViewMatrix);
-
-   trunkMatrix = mult(mult(modelViewMatrix, trunkTranslate), trunkScale);
-  gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(trunkMatrix));
-  gl.uniformMatrix4fv(projectionMatrixLoc, false, flatten(projectionMatrix));
-  gl.drawArrays(gl.TRIANGLES, 15933, 60); // First 60 vertices are for the trunk
-  modelViewMatrix=mvMatrixStack.pop();
+  //  trunkMatrix = mult(mult(modelViewMatrix, trunkTranslate), trunkScale);
+  // gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(trunkMatrix));
+  // gl.uniformMatrix4fv(projectionMatrixLoc, false, flatten(projectionMatrix));
+  // gl.drawArrays(gl.TRIANGLES, 15933, 60); // First 60 vertices are for the trunk
+  // modelViewMatrix=mvMatrixStack.pop();
 
 
-  SetupLeavesMaterial(); // Apply leaves material and lighting
-   leavesScale = scale4(0.25, 0.5, 0.25); // Adjust if needed
-   leavesTranslate = translate(1, 0, 3.7);
-   leavesMatrix = mult(mult(modelViewMatrix, leavesTranslate), leavesScale);
-  gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(leavesMatrix));
-  gl.drawArrays(gl.TRIANGLES, 60 + 15933,  60); // Remaining vertices are for the leaves
-  // console.log(pointsArray.length - 60);
-  requestAnimFrame(render);
-  //end repeat
+  // SetupLeavesMaterial(); // Apply leaves material and lighting
+  //  leavesScale = scale4(0.25, 0.5, 0.25); // Adjust if needed
+  //  leavesTranslate = translate(1, 0, 3);
+  //  leavesMatrix = mult(mult(modelViewMatrix, leavesTranslate), leavesScale);
+  // gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(leavesMatrix));
+  // gl.drawArrays(gl.TRIANGLES, 60 + 15933,  60); // Remaining vertices are for the leaves
+  // // console.log(pointsArray.length - 60);
+  // requestAnimFrame(render);
+  // //end repeat
+
+  // //repeat tree
+  // SetupTrunkMaterial(); // Apply trunk material and lighting
+  //  trunkScale = scale4(0.12, 0.5, 0.12);
+  //  trunkTranslate = translate(1, 0, 3.7);
+  // mvMatrixStack.push(modelViewMatrix);
+
+  //  trunkMatrix = mult(mult(modelViewMatrix, trunkTranslate), trunkScale);
+  // gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(trunkMatrix));
+  // gl.uniformMatrix4fv(projectionMatrixLoc, false, flatten(projectionMatrix));
+  // gl.drawArrays(gl.TRIANGLES, 15933, 60); // First 60 vertices are for the trunk
+  // modelViewMatrix=mvMatrixStack.pop();
+
+
+  // SetupLeavesMaterial(); // Apply leaves material and lighting
+  //  leavesScale = scale4(0.25, 0.5, 0.25); // Adjust if needed
+  //  leavesTranslate = translate(1, 0, 3.7);
+  //  leavesMatrix = mult(mult(modelViewMatrix, leavesTranslate), leavesScale);
+  // gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(leavesMatrix));
+  // gl.drawArrays(gl.TRIANGLES, 60 + 15933,  60); // Remaining vertices are for the leaves
+  // // console.log(pointsArray.length - 60);
+  // requestAnimFrame(render);
+  // //end repeat
 
 }
 
