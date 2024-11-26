@@ -25,7 +25,7 @@ Objects completed in Part 1:
 /*
 Objects completed in Part 2: 
 1. Extruded Shape Object: Building
-    Completed by:
+    Completed by: Zeiad Abdelkhalik
 2. Surface of Revolution Object: Futuristic, Toronto inspired Building
     Completed by: Bowen Truelove
 3. Composite Object: Road
