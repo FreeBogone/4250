@@ -23,6 +23,9 @@ var normalsArray = [];
 var pointsIndex = 0;
 var colorsArray = [];
 
+var N;
+var Exvertices;
+var N_Triangle;
 var buildingVertices = [];
 
 var left = -1;
@@ -222,6 +225,9 @@ function main()
     //Draw tree
     DrawTree();
 
+    ExtrudedTriangle();
+
+
     // pass data onto GPU
     var nBuffer = gl.createBuffer();
     gl.bindBuffer( gl.ARRAY_BUFFER, nBuffer);
@@ -322,7 +328,128 @@ function SetupLeavesMaterial() {
 // ******************************************
 // Draw simple and primitive objects
 // ******************************************
+//Start Extruded
 
+function ExtrudedTriangle()
+{
+    // for a different extruded object,
+    // only change these two variables: Exvertices and height
+
+    var height=2;
+    Exvertices = [ vec4(2, 0, 0, 1),
+                   vec4(5, 0, 1, 1),
+
+                 vec4(0, 0, 2, 1),
+                 vec4(0, 0, 0, 1),
+				 ];
+    N=N_Triangle = Exvertices.length;
+
+    // add the second set of points
+    // extruded along the Y Axis
+    for (var i=0; i<N; i++)
+    {
+        Exvertices.push(vec4(Exvertices[i][0], Exvertices[i][1]+height, Exvertices[i][2], 1));
+    }
+
+    ExtrudedShape();
+}
+
+
+function ExtrudedShape()
+{
+    lightAmbient = vec4(0.2, 0.2, 0.2, 1.0 );
+    lightDiffuse = vec4( 1.0, 1.0, 1.0, 1.0 );
+    lightSpecular = vec4( 1.0, 1.0, 1.0, 1.0 );
+   
+    materialAmbient = vec4( 1.0, 0.1, 0.1, 1.0 );
+    materialDiffuse = vec4( 1.0, 0.1, 0.1, 1.0);
+    materialSpecular = vec4( 1.0, 1.0, 1.0, 1.0 );
+    materialShininess = 50.0;
+    var basePoints=[];
+    var topPoints=[];
+
+    // create the face list
+    // add the side faces first --> N ExQuads
+    for (var j=0; j<N; j++)
+    {
+        ExQuad(j, j+N, (j+1)%N+N, (j+1)%N); // CCW rotation
+    }
+
+    // the first N Exvertices come from the base
+    basePoints.push(0);
+    for (var i=N-1; i>0; i--)
+    {
+        basePoints.push(i);  // index only
+    }
+    // add the base face as the Nth face
+    polygon(basePoints);
+
+    // the next N Exvertices come from the top
+    for (var i=0; i<N; i++)
+    {
+        topPoints.push(i+N); // index only
+    }
+    // add the top face
+    polygon(topPoints);
+}
+
+function ExQuad(a, b, c, d) {
+
+     var indices=[a, b, c, d];
+     var normal = Newell(indices);
+
+     // triangle a-b-c
+     pointsArray.push(Exvertices[a]);
+     normalsArray.push(normal);
+
+     pointsArray.push(Exvertices[b]);
+     normalsArray.push(normal);
+
+     pointsArray.push(Exvertices[c]);
+     normalsArray.push(normal);
+
+     // triangle a-c-d
+     pointsArray.push(Exvertices[a]);
+     normalsArray.push(normal);
+
+     pointsArray.push(Exvertices[c]);
+     normalsArray.push(normal);
+
+     pointsArray.push(Exvertices[d]);
+     normalsArray.push(normal);
+}
+
+
+function polygon(indices)
+{
+    // for indices=[a, b, c, d, e, f, ...]
+    var M=indices.length;
+    var normal=Newell(indices);
+
+    var prev=1;
+    var next=2;
+    // triangles:
+    // a-b-c
+    // a-c-d
+    // a-d-e
+    // ...
+    for (var i=0; i<M-2; i++)
+    {
+        pointsArray.push(Exvertices[indices[0]]);
+        normalsArray.push(normal);
+
+        pointsArray.push(Exvertices[indices[prev]]);
+        normalsArray.push(normal);
+
+        pointsArray.push(Exvertices[indices[next]]);
+        normalsArray.push(normal);
+
+        prev=next;
+        next=next+1;
+    }
+}
+
+//End Extruded
 // Create the sides of the trunk (connecting the base and top) with normals
 function createTrunkFaces() {
   for (let i = 0; i < 10; i++) {
@@ -1170,7 +1297,7 @@ function DrawRevolutionBuilding() {
   // var startIndex = pointsArray.length - 24*24*6;
   var startIndex = pointsArray.length - 120 - 24*24*6;
   var vertexCount = 24*24*6;
-  gl.drawArrays(gl.TRIANGLES, startIndex, vertexCount);
+  gl.drawArrays(gl.TRIANGLES, startIndex, vertexCount-50);
 
   //draw cubes around base to make it look like a building
   var numCubes = 12;
@@ -1351,7 +1478,7 @@ function render()
   materialSpecular = vec4(0.5, 0.5, 1.0, 1.0);
   materialShininess = 100;
   SetupLightingMaterial();
-  gl.drawArrays(gl.TRIANGLES, cubeCount + sphereCount, pointsArray.length - 120 - (cubeCount + sphereCount ));
+  gl.drawArrays(gl.TRIANGLES, cubeCount + sphereCount, pointsArray.length - 120 - (cubeCount + sphereCount )-50);
   // console.log("lenght = " + pointsArray.length);
   modelViewMatrix = mvMatrixStack.pop();
 
@@ -1383,6 +1510,56 @@ function render()
   gl.drawArrays(gl.TRIANGLES, 60 + 15933,  60); // Remaining vertices are for the leaves
   // console.log(pointsArray.length - 60);
   requestAnimFrame(render);
+
+  // gl.uniformMatrix4fv( gl.getUniformLocation(program,
+  //   "modelViewMatrix"), false, flatten(modelView) );
+// Apply translation for the last rendered part
+let lastTranslate = translate(0.7, 0, 3); // Adjust X, Y, Z as needed
+let lastScale = scale4(0.15, 1, 0.15); // Optional scaling if needed
+mvMatrixStack.push(modelViewMatrix);
+
+// Combine translation and scaling with the current modelViewMatrix
+let lastMatrix = mult(mult(modelViewMatrix, lastTranslate), lastScale);
+// Send the updated matrix to the GPU
+gl.uniformMatrix4fv(gl.getUniformLocation(program, "modelViewMatrix"), false, flatten(lastMatrix));
+// Set up lighting and materials
+materialAmbient = vec4(1.0, 0, 0.2, 1.0);
+materialDiffuse = vec4(1.0, 0, 0.2, 1.0);
+ambientProduct = mult(lightAmbient, materialAmbient);
+diffuseProduct = mult(lightDiffuse, materialDiffuse);
+gl.uniform4fv(gl.getUniformLocation(program, "ambientProduct"), flatten(ambientProduct));
+gl.uniform4fv(gl.getUniformLocation(program, "diffuseProduct"), flatten(diffuseProduct));
+// Draw the geometry with translation applied
+gl.drawArrays(gl.TRIANGLES, 60 + 15933 + 60, 6 * N + 1 * 3 * 2 + (60 + 15933 + 60));
+modelViewMatrix=mvMatrixStack.pop();
+
+
+
+
+
+
+
+
+
+
+ lastTranslate = translate(0.7, 0, 3.6); // Adjust X, Y, Z as needed
+ lastScale = scale4(0.15, 1, 0.15); // Optional scaling if needed
+mvMatrixStack.push(modelViewMatrix);
+
+// Combine translation and scaling with the current modelViewMatrix
+ lastMatrix = mult(mult(modelViewMatrix, lastTranslate), lastScale);
+// Send the updated matrix to the GPU
+gl.uniformMatrix4fv(gl.getUniformLocation(program, "modelViewMatrix"), false, flatten(lastMatrix));
+// Set up lighting and materials
+materialAmbient = vec4(0.5, 0, 0.2, 1.0);
+materialDiffuse = vec4(1.0, 0, 0.8, 1.0);
+ambientProduct = mult(lightAmbient, materialAmbient);
+diffuseProduct = mult(lightDiffuse, materialDiffuse);
+gl.uniform4fv(gl.getUniformLocation(program, "ambientProduct"), flatten(ambientProduct));
+gl.uniform4fv(gl.getUniformLocation(program, "diffuseProduct"), flatten(diffuseProduct));
+// Draw the geometry with translation applied
+gl.drawArrays(gl.TRIANGLES, 60 + 15933 + 60, 6 * N + 1 * 3 * 2 + (60 + 15933 + 60));
+modelViewMatrix=mvMatrixStack.pop();
 
   // //repeat tree
   // SetupTrunkMaterial(); // Apply trunk material and lighting
