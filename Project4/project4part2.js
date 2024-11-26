@@ -152,6 +152,15 @@ var lastMouseX = null;
 var lastMouseY = null;
 var rotationMatrix = mat4();
 
+var carAnimating = false;
+var carPosition = 0;
+var carRotation = 0;
+var animationSpeed = 0.01;
+
+var carStart = { x: 3.0, y: 0.15, z: 1.2 };
+var carTurn = { x: 1.1, y: 0.15, z: 1.2 };
+var carEnd = { x: 1.3, y: 0.15, z: 3.0 };
+
 function handleMouseDown(event) {
     mouseDown = true;
     lastMouseX = event.clientX;
@@ -267,6 +276,13 @@ function HandleKeyboard(event)
     case 40:    // down cursor key
               yrot += deg;
               break;
+    case 65:    // 'a' key
+        carAnimating = !carAnimating;
+        if (carAnimating) {
+            carPosition = 0;
+            carRotation = 0;
+        }
+        break;
     }
 }
 
@@ -1204,6 +1220,53 @@ function DrawRevolutionBuilding() {
   modelViewMatrix = mvMatrixStack.pop();
 }
 
+function animateCar() {
+  if (carAnimating) {
+      if (carPosition < 1) {
+          // First straight section
+          var x = carStart.x + (carTurn.x - carStart.x) * carPosition;
+          var z = carStart.z;
+          
+          mvMatrixStack.push(modelViewMatrix);
+          t = translate(x, carStart.y, z);
+          s = scale4(0.2, 0.2, 0.2);
+          // First rotate 90 degrees around X to make car upright, then rotate around Y for direction
+          r = mult(rotate(180, 0, 0, 1), rotate(90, 1, 0, 0));
+          modelViewMatrix = mult(mult(mult(modelViewMatrix, t), r), s);
+          DrawCar();
+          modelViewMatrix = mvMatrixStack.pop();
+      } else if (carPosition < 2) {
+          // Second straight section
+          var progress = carPosition - 1;
+          var x = carTurn.x;
+          var z = carTurn.z + (carEnd.z - carTurn.z) * progress;
+          
+            mvMatrixStack.push(modelViewMatrix);
+            t = translate(x, carTurn.y, z);
+            s = scale4(0.2, 0.2, 0.2);
+            r = mult(rotate(270, 0, 1, 0), rotate(270, 1, 0, 0));
+            modelViewMatrix = mult(mult(mult(modelViewMatrix, t), r), s);
+            DrawCar();
+            modelViewMatrix = mvMatrixStack.pop();
+      } else {
+          // Reset animation
+          carAnimating = false;
+          carPosition = 0;
+      }
+      
+      carPosition += animationSpeed;
+  } else {
+      // Draw car in default position when not animating
+      mvMatrixStack.push(modelViewMatrix);
+      t = translate(carStart.x, carStart.y, carStart.z);
+      s = scale4(0.2, 0.2, 0.2);
+      r = mult(rotate(180, 0, 0, 1), rotate(90, 1, 0, 0));
+      modelViewMatrix = mult(mult(mult(modelViewMatrix, t), r), s);
+      DrawCar();
+      modelViewMatrix = mvMatrixStack.pop();
+  }
+}
+
 function render()
 {
 	var s, t, r;
@@ -1271,13 +1334,7 @@ function render()
   DrawRoad();
 
   // draw the car
-  mvMatrixStack.push(modelViewMatrix);
-  t=translate(1.6, 0.15, 1.2);
-  s=scale4(0.2, 0.2, 0.2);
-  //r=rotate(30, 1, 1, 0);
-  modelViewMatrix=mult(mult(mult(modelViewMatrix, t), r), s);
-  DrawCar();
-  modelViewMatrix=mvMatrixStack.pop();
+  animateCar();
 
   mvMatrixStack.push(modelViewMatrix);
   // Adjust position and orientation for better view
