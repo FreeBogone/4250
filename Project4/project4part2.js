@@ -1296,9 +1296,10 @@ function DrawRevolutionBuilding() {
 
   // Adjust position and scale
   t = translate(2, 0.2, 1.6);
-  s = scale4(2.0, 3.0, 2.0);  // Increased scale
-  //r = rotate(180, 0, 0, 1);     // Rotate to face the camera
-  modelViewMatrix = mult(mult(modelViewMatrix, t), s);
+  s = scale4(2.0, 3.0, 2.0);
+  r = rotate(180, 0, 1, 0); 
+  //modelViewMatrix = mult(mult(modelViewMatrix, t), s);
+  modelViewMatrix = mult(mult(mult(modelViewMatrix, t), r), s);
   gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(modelViewMatrix));
 
   // Draw the surface

@@ -1,7 +1,11 @@
 // Bowen Truelove
 // Zeiad Abdelkhalik
 // CSCI 4250
+<<<<<<< HEAD
 // Project 4 Part 2
+=======
+// Project 4 Part 3
+>>>>>>> 7802d7ba59c85b2742d2a3ef2e1d9e1cf3892540
 // 11/26/2024
 
 // No AI:
@@ -34,12 +38,37 @@ Objects completed in Part 2:
     Completed by: Bowen Truelove
 */
 
+<<<<<<< HEAD
+=======
+/* 
+Requirements completed in Part 3:
+1. At least two more new objects to the scene 
+    1. 
+    2. 
+2. Add texture to at least four objects in the scene.   
+    1. 
+    2. 
+    3. 
+    4.
+3. Add sound effect. Sound should be played during animation 
+`   1.
+4. Add animation so the viewer can “move” a camera about the scene.  
+`   1.
+5. Allow the user to move back to the original scene by pressing the ‘b’ key.
+    1.
+*/
+
+>>>>>>> 7802d7ba59c85b2742d2a3ef2e1d9e1cf3892540
 var canvas;
 var gl, program;
 
 var zoomFactor = 2.5;
 var translateFactorX = -0.2;
+<<<<<<< HEAD
 var translateFactorY = -0.2;
+=======
+var translateFactorY = 0.1;
+>>>>>>> 7802d7ba59c85b2742d2a3ef2e1d9e1cf3892540
 
 var numTimesToSubdivide = 5;
 
@@ -47,7 +76,11 @@ var pointsArray = [];
 var normalsArray = [];
 var pointsIndex = 0;
 var colorsArray = [];
+<<<<<<< HEAD
 var withWalls= true;
+=======
+
+>>>>>>> 7802d7ba59c85b2742d2a3ef2e1d9e1cf3892540
 var N;
 var Exvertices;
 var N_Triangle;
@@ -63,7 +96,11 @@ var deg=5;
 var eye=[.4, .6, .4];
 var at=[.0, .2, -0.2];
 var up=[0, 1, 0];
+<<<<<<< HEAD
 var cameraMoveButton = false;
+=======
+
+>>>>>>> 7802d7ba59c85b2742d2a3ef2e1d9e1cf3892540
 var cubeCount=36;
 var sphereCount=0;
 
@@ -184,8 +221,11 @@ var carPosition = 0;
 var carRotation = 0;
 var animationSpeed = 0.01;
 
+<<<<<<< HEAD
 var sound = new Audio('carSound.wav');
 
+=======
+>>>>>>> 7802d7ba59c85b2742d2a3ef2e1d9e1cf3892540
 var carStart = { x: 3.0, y: 0.15, z: 1.2 };
 var carTurn = { x: 1.1, y: 0.15, z: 1.2 };
 var carEnd = { x: 1.3, y: 0.15, z: 3.0 };
@@ -219,6 +259,7 @@ function handleMouseMove(event) {
 
     lastMouseX = newX;
     lastMouseY = newY;
+<<<<<<< HEAD
     console.log("lastMouseX = "+ lastMouseX);
     console.log("lastMousey = "+ lastMouseY);
 
@@ -263,6 +304,11 @@ function cameraMovePanorama() {
     }
 }
 
+=======
+
+    //render();
+}
+>>>>>>> 7802d7ba59c85b2742d2a3ef2e1d9e1cf3892540
 
 function main()
 {
@@ -351,6 +397,7 @@ function HandleKeyboard(event)
         if (carAnimating) {
             carPosition = 0;
             carRotation = 0;
+<<<<<<< HEAD
             
         }
         break;
@@ -372,6 +419,10 @@ function HandleKeyboard(event)
          break;
 
    
+=======
+        }
+        break;
+>>>>>>> 7802d7ba59c85b2742d2a3ef2e1d9e1cf3892540
     }
 }
 
@@ -1151,6 +1202,43 @@ function DrawBuilding() {
   modelViewMatrix=mvMatrixStack.pop();
 }
 
+<<<<<<< HEAD
+=======
+function DrawBuildingV2() {
+    //Draw another type of building
+    //COMPOSITE OBJECT: BuILDING
+    //SIMPLE OBJECTS: CUBE, TRAPEZOID
+
+    // draw the first Floor
+    DrawFloorV2();
+}
+
+function DrawFloorV2() {
+    //Draw the first floor of the building
+    //COMPOSITE OBJECT: FIRST FLOOR
+    //SIMPLE OBJECTS: CUBE, TRAPEZOID
+
+    console.log("Drawing the first floor of the building");
+    // draw the first Floor
+    mvMatrixStack.push(modelViewMatrix);
+    //make light blue
+    lightAmbient = vec4(0.8, 0.8, 1.0, 1);
+    lightDiffuse = vec4(0.8, 0.8, 1.0, 1);
+    lightSpecular = vec4(0.9, 0.9, 1.0, 1);
+    materialAmbient = vec4(0.8, 0.8, 1.0, 1);
+    materialDiffuse = vec4(0.8, 0.8, 1.0, 1);
+    materialSpecular = vec4(0.9, 0.9, 1.0, 1);
+    materialShininess = 50;
+    SetupLightingMaterial();
+    t=translate(0, 0, 0);
+    s = scale4(0, 0, 0);
+    modelViewMatrix=mult(mult(modelViewMatrix, t), s);
+    gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(modelViewMatrix));
+    DrawSolidCube(1);
+    modelViewMatrix=mvMatrixStack.pop();
+}
+
+>>>>>>> 7802d7ba59c85b2742d2a3ef2e1d9e1cf3892540
 function DrawRoad() {
   //Draw the road using cubes scaled and translated
   //COMPOSITE OBJECT: ROAD
@@ -1351,9 +1439,16 @@ function DrawRevolutionBuilding() {
 
   // Adjust position and scale
   t = translate(2, 0.2, 1.6);
+<<<<<<< HEAD
   s = scale4(2.0, 3.0, 2.0);  // Increased scale
   //r = rotate(180, 0, 0, 1);     // Rotate to face the camera
   modelViewMatrix = mult(mult(modelViewMatrix, t), s);
+=======
+  s = scale4(2.0, 3.0, 2.0);
+  r = rotate(180, 0, 1, 0); 
+  //modelViewMatrix = mult(mult(modelViewMatrix, t), s);
+  modelViewMatrix = mult(mult(mult(modelViewMatrix, t), r), s);
+>>>>>>> 7802d7ba59c85b2742d2a3ef2e1d9e1cf3892540
   gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(modelViewMatrix));
 
   // Draw the surface
@@ -1413,9 +1508,12 @@ function DrawRevolutionBuilding() {
 function animateCar() {
   // Bowen Treulove
   if (carAnimating) {
+<<<<<<< HEAD
     // sound.currentTime = 10;
     sound.play();
     // setTimeout(() => { console.log("This message is displayed with a delay."); }, 100000);
+=======
+>>>>>>> 7802d7ba59c85b2742d2a3ef2e1d9e1cf3892540
       if (carPosition < 1) {
           // first section
           var x = carStart.x + (carTurn.x - carStart.x) * carPosition;
@@ -1458,8 +1556,11 @@ function animateCar() {
       modelViewMatrix = mult(mult(mult(modelViewMatrix, t), r), s);
       DrawCar();
       modelViewMatrix = mvMatrixStack.pop();
+<<<<<<< HEAD
       sound.pause();
       sound.currentTime = 0;
+=======
+>>>>>>> 7802d7ba59c85b2742d2a3ef2e1d9e1cf3892540
   }
 }
 
@@ -1469,8 +1570,11 @@ function render()
 
 	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
+<<<<<<< HEAD
   cameraMovePanorama();
 
+=======
+>>>>>>> 7802d7ba59c85b2742d2a3ef2e1d9e1cf3892540
   // set up view and projection
   projectionMatrix = ortho(left*zoomFactor-translateFactorX, right*zoomFactor-translateFactorX, bottom*zoomFactor-translateFactorY, ytop*zoomFactor-translateFactorY, near, far);
   modelViewMatrix=lookAt(eye, at, up);
@@ -1497,8 +1601,11 @@ function render()
   SetupLightingMaterial();
 	DrawWall(0.02);
 
+<<<<<<< HEAD
 
   if(withWalls===true){
+=======
+>>>>>>> 7802d7ba59c85b2742d2a3ef2e1d9e1cf3892540
 	// wall #2: in yz-plane
 	mvMatrixStack.push(modelViewMatrix);
   lightAmbient = vec4(0.1, 0.1, 0.3, 1);
@@ -1529,7 +1636,11 @@ function render()
   modelViewMatrix=mult(modelViewMatrix, r);
 	DrawWall(0.02);
 	modelViewMatrix=mvMatrixStack.pop();
+<<<<<<< HEAD
   }
+=======
+
+>>>>>>> 7802d7ba59c85b2742d2a3ef2e1d9e1cf3892540
   //draw road
   DrawRoad();
 
@@ -1563,6 +1674,12 @@ function render()
   modelViewMatrix = mult(mult(modelViewMatrix, t), s);
   DrawRevolutionBuilding();
 
+<<<<<<< HEAD
+=======
+  //draw building V2
+  DrawBuildingV2();
+
+>>>>>>> 7802d7ba59c85b2742d2a3ef2e1d9e1cf3892540
   // Render Trunk
   SetupTrunkMaterial(); // Apply trunk material and lighting
   let trunkScale = scale4(0.12, 0.5, 0.12);
@@ -1840,6 +1957,10 @@ function scale4(a, b, c) {
    	result[2][2] = c;
    	return result;
 }
+<<<<<<< HEAD
+=======
+
+>>>>>>> 7802d7ba59c85b2742d2a3ef2e1d9e1cf3892540
 // Function to calculate normal vectors using the Newell3 method
 function Newell3(vertices) {
   let x = 0, y = 0, z = 0;
