@@ -278,6 +278,8 @@ window.onload = function init() {
 }
 // Render function to update and draw the tree
 function render() {
+    console.log("gggggggggggggggggggggggggggggggwssssssssswww");
+    Newell3([vec3(0,2,0),vec3(0,0,2),vec3(3,0,0),vec3(2,1,-1)]);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     gl.enable(gl.DEPTH_TEST);
     eye = vec3( AllInfo.radius*Math.cos(AllInfo.phi),
@@ -327,6 +329,7 @@ function Newell3(vertices) {
         y += (current[2] - next[2]) * (current[0] + next[0]);
         z += (current[0] - next[0]) * (current[1] + next[1]);
     }
+    console.log(vec3(x, y, z));
     return normalize(vec3(x, y, z));
 }
 

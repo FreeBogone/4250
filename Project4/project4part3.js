@@ -39,7 +39,7 @@ var gl, program;
 
 var zoomFactor = 2.5;
 var translateFactorX = -0.2;
-var translateFactorY = 0.1;
+var translateFactorY = -0.2;
 
 var numTimesToSubdivide = 5;
 
@@ -47,7 +47,7 @@ var pointsArray = [];
 var normalsArray = [];
 var pointsIndex = 0;
 var colorsArray = [];
-
+var withWalls= true;
 var N;
 var Exvertices;
 var N_Triangle;
@@ -63,7 +63,7 @@ var deg=5;
 var eye=[.4, .6, .4];
 var at=[.0, .2, -0.2];
 var up=[0, 1, 0];
-
+var cameraMoveButton = false;
 var cubeCount=36;
 var sphereCount=0;
 
@@ -184,6 +184,8 @@ var carPosition = 0;
 var carRotation = 0;
 var animationSpeed = 0.01;
 
+var sound = new Audio('carSound.wav');
+
 var carStart = { x: 3.0, y: 0.15, z: 1.2 };
 var carTurn = { x: 1.1, y: 0.15, z: 1.2 };
 var carEnd = { x: 1.3, y: 0.15, z: 3.0 };
@@ -222,6 +224,45 @@ function handleMouseMove(event) {
 
     //render();
 }
+let cameraAngle = 0; // Angle for panoramic movement
+let cameraRadius =.5 // Distance from the center
+
+
+function wallTogale(){
+  console.log("wwlwlllwlww");
+  console.log("withWalls = "+ withWalls);
+  if(withWalls===true)
+    {
+    withWalls=false
+    render();
+  }
+  else{
+    withWalls=true
+    render();
+  }
+}
+function cameraMovePanorama() {
+    if (cameraMoveButton) {
+        // Increment the angle for smooth movement
+        cameraAngle += 0.01; 
+        
+        // Update the 'eye' position to orbit around the scene
+        eye[0] = cameraRadius * Math.cos(cameraAngle); // X-coordinate
+        eye[2] = cameraRadius * Math.sin(cameraAngle); // Z-coordinate
+        eye[1] = 0.6; // Keep a consistent height (optional)
+
+        // Ensure 'at' remains the center of the scene
+        at[0] = 0.0;
+        at[1] = 0.2;
+        at[2] = -0.2;
+
+        // 'up' vector stays pointing up
+        up[0] = 0.0;
+        up[1] = 1.0;
+        up[2] = 0.0;
+    }
+}
+
 
 function main()
 {
@@ -310,6 +351,7 @@ function HandleKeyboard(event)
         if (carAnimating) {
             carPosition = 0;
             carRotation = 0;
+            
         }
         break;
     case 66:   // 'b' Key
@@ -317,6 +359,19 @@ function HandleKeyboard(event)
          lastMouseX = null;
          lastMouseY = null;
          rotationMatrix = mat4();
+         sound.play();
+         break;
+         case 77: // 'M' key: Start camera animation
+         cameraMoveButton = true;
+         console.log("Panorama started");
+         break;
+
+     case 78: // 'N' key: Stop camera animation
+         cameraMoveButton = false;
+         console.log("Panorama stopped");
+         break;
+
+   
     }
 }
 
@@ -1358,6 +1413,9 @@ function DrawRevolutionBuilding() {
 function animateCar() {
   // Bowen Treulove
   if (carAnimating) {
+    // sound.currentTime = 10;
+    sound.play();
+    // setTimeout(() => { console.log("This message is displayed with a delay."); }, 100000);
       if (carPosition < 1) {
           // first section
           var x = carStart.x + (carTurn.x - carStart.x) * carPosition;
@@ -1400,6 +1458,8 @@ function animateCar() {
       modelViewMatrix = mult(mult(mult(modelViewMatrix, t), r), s);
       DrawCar();
       modelViewMatrix = mvMatrixStack.pop();
+      sound.pause();
+      sound.currentTime = 0;
   }
 }
 
@@ -1408,6 +1468,8 @@ function render()
 	var s, t, r;
 
 	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+  cameraMovePanorama();
 
   // set up view and projection
   projectionMatrix = ortho(left*zoomFactor-translateFactorX, right*zoomFactor-translateFactorX, bottom*zoomFactor-translateFactorY, ytop*zoomFactor-translateFactorY, near, far);
@@ -1435,6 +1497,8 @@ function render()
   SetupLightingMaterial();
 	DrawWall(0.02);
 
+
+  if(withWalls===true){
 	// wall #2: in yz-plane
 	mvMatrixStack.push(modelViewMatrix);
   lightAmbient = vec4(0.1, 0.1, 0.3, 1);
@@ -1465,7 +1529,7 @@ function render()
   modelViewMatrix=mult(modelViewMatrix, r);
 	DrawWall(0.02);
 	modelViewMatrix=mvMatrixStack.pop();
-
+  }
   //draw road
   DrawRoad();
 
