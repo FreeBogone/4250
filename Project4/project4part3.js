@@ -1,11 +1,7 @@
 // Bowen Truelove
 // Zeiad Abdelkhalik
 // CSCI 4250
-<<<<<<< HEAD
 // Project 4 Part 2
-=======
-// Project 4 Part 3
->>>>>>> 7802d7ba59c85b2742d2a3ef2e1d9e1cf3892540
 // 11/26/2024
 
 // No AI:
@@ -38,37 +34,12 @@ Objects completed in Part 2:
     Completed by: Bowen Truelove
 */
 
-<<<<<<< HEAD
-=======
-/* 
-Requirements completed in Part 3:
-1. At least two more new objects to the scene 
-    1. 
-    2. 
-2. Add texture to at least four objects in the scene.   
-    1. 
-    2. 
-    3. 
-    4.
-3. Add sound effect. Sound should be played during animation 
-`   1.
-4. Add animation so the viewer can “move” a camera about the scene.  
-`   1.
-5. Allow the user to move back to the original scene by pressing the ‘b’ key.
-    1.
-*/
-
->>>>>>> 7802d7ba59c85b2742d2a3ef2e1d9e1cf3892540
 var canvas;
 var gl, program;
 
 var zoomFactor = 2.5;
 var translateFactorX = -0.2;
-<<<<<<< HEAD
 var translateFactorY = -0.2;
-=======
-var translateFactorY = 0.1;
->>>>>>> 7802d7ba59c85b2742d2a3ef2e1d9e1cf3892540
 
 var numTimesToSubdivide = 5;
 
@@ -76,11 +47,7 @@ var pointsArray = [];
 var normalsArray = [];
 var pointsIndex = 0;
 var colorsArray = [];
-<<<<<<< HEAD
 var withWalls= true;
-=======
-
->>>>>>> 7802d7ba59c85b2742d2a3ef2e1d9e1cf3892540
 var N;
 var Exvertices;
 var N_Triangle;
@@ -96,11 +63,7 @@ var deg=5;
 var eye=[.4, .6, .4];
 var at=[.0, .2, -0.2];
 var up=[0, 1, 0];
-<<<<<<< HEAD
 var cameraMoveButton = false;
-=======
-
->>>>>>> 7802d7ba59c85b2742d2a3ef2e1d9e1cf3892540
 var cubeCount=36;
 var sphereCount=0;
 
@@ -221,11 +184,8 @@ var carPosition = 0;
 var carRotation = 0;
 var animationSpeed = 0.01;
 
-<<<<<<< HEAD
 var sound = new Audio('carSound.wav');
 
-=======
->>>>>>> 7802d7ba59c85b2742d2a3ef2e1d9e1cf3892540
 var carStart = { x: 3.0, y: 0.15, z: 1.2 };
 var carTurn = { x: 1.1, y: 0.15, z: 1.2 };
 var carEnd = { x: 1.3, y: 0.15, z: 3.0 };
@@ -259,7 +219,6 @@ function handleMouseMove(event) {
 
     lastMouseX = newX;
     lastMouseY = newY;
-<<<<<<< HEAD
     console.log("lastMouseX = "+ lastMouseX);
     console.log("lastMousey = "+ lastMouseY);
 
@@ -304,11 +263,6 @@ function cameraMovePanorama() {
     }
 }
 
-=======
-
-    //render();
-}
->>>>>>> 7802d7ba59c85b2742d2a3ef2e1d9e1cf3892540
 
 function main()
 {
@@ -397,7 +351,6 @@ function HandleKeyboard(event)
         if (carAnimating) {
             carPosition = 0;
             carRotation = 0;
-<<<<<<< HEAD
             
         }
         break;
@@ -419,10 +372,6 @@ function HandleKeyboard(event)
          break;
 
    
-=======
-        }
-        break;
->>>>>>> 7802d7ba59c85b2742d2a3ef2e1d9e1cf3892540
     }
 }
 
@@ -1202,43 +1151,250 @@ function DrawBuilding() {
   modelViewMatrix=mvMatrixStack.pop();
 }
 
-<<<<<<< HEAD
-=======
-function DrawBuildingV2() {
-    //Draw another type of building
-    //COMPOSITE OBJECT: BuILDING
-    //SIMPLE OBJECTS: CUBE, TRAPEZOID
+function DrawSecondBuilding() {
+  mvMatrixStack.push(modelViewMatrix);
+  //light blue building
+  lightAmbient = vec4(0.2, 0.2, 0.4, 1);
+  lightDiffuse = vec4(0.2, 0.2, 0.4, 1);
+  lightSpecular = vec4(0.2, 0.2, 0.4, 1);
+  materialAmbient = vec4(0.2, 0.2, 0.4, 1);
+  materialDiffuse = vec4(0.4, 0.4, 0.6, 1);
+  materialSpecular = vec4(0.5, 0.5, 0.7, 1);
+  materialShininess = 50;
+  SetupLightingMaterial();
+  t=translate(0, 0.65, 0);
+  s=scale4(1, 1.3, 1);
+  modelViewMatrix=mult(mult(modelViewMatrix, t), s);
+  gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(modelViewMatrix));
+  DrawSolidCube(1);
+  modelViewMatrix=mvMatrixStack.pop();
 
-    // draw the first Floor
-    DrawFloorV2();
-}
+  mvMatrixStack.push(modelViewMatrix);
+  //light blue building
+  lightAmbient = vec4(1.0, 1.0, 1.0, 1);
+  lightDiffuse = vec4(1.0, 1.0, 1.0, 1);
+  lightSpecular = vec4(1.0, 1.0, 1.0, 1);
+  materialAmbient = vec4(1.0, 1.0, 1.0, 1);
+  materialDiffuse = vec4(1.0, 1.0, 1.0, 1);
+  materialSpecular = vec4(1.0, 1.0, 1.0, 1);
+  materialShininess = 50;
+  SetupLightingMaterial();
+  t=translate(0, 1.4, 0);
+  s=scale4(0.8, 0.2, 0.8);
+  modelViewMatrix=mult(mult(modelViewMatrix, t), s);
+  gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(modelViewMatrix));
+  DrawSolidCube(1);
+  modelViewMatrix=mvMatrixStack.pop();
 
-function DrawFloorV2() {
-    //Draw the first floor of the building
-    //COMPOSITE OBJECT: FIRST FLOOR
-    //SIMPLE OBJECTS: CUBE, TRAPEZOID
+  mvMatrixStack.push(modelViewMatrix);
+  //light blue building
+  lightAmbient = vec4(0.2, 0.2, 0.4, 1);
+  lightDiffuse = vec4(0.2, 0.2, 0.4, 1);
+  lightSpecular = vec4(0.2, 0.2, 0.4, 1);
+  materialAmbient = vec4(0.2, 0.2, 0.4, 1);
+  materialDiffuse = vec4(0.4, 0.4, 0.6, 1);
+  materialSpecular = vec4(0.5, 0.5, 0.7, 1);
+  materialShininess = 50;
+  SetupLightingMaterial();
+  t=translate(0, 2.1, 0);
+  s=scale4(1, 1.3, 1);
+  modelViewMatrix=mult(mult(modelViewMatrix, t), s);
+  gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(modelViewMatrix));
+  DrawSolidCube(1);
+  modelViewMatrix=mvMatrixStack.pop();
 
-    console.log("Drawing the first floor of the building");
-    // draw the first Floor
-    mvMatrixStack.push(modelViewMatrix);
-    //make light blue
-    lightAmbient = vec4(0.8, 0.8, 1.0, 1);
-    lightDiffuse = vec4(0.8, 0.8, 1.0, 1);
-    lightSpecular = vec4(0.9, 0.9, 1.0, 1);
-    materialAmbient = vec4(0.8, 0.8, 1.0, 1);
-    materialDiffuse = vec4(0.8, 0.8, 1.0, 1);
-    materialSpecular = vec4(0.9, 0.9, 1.0, 1);
-    materialShininess = 50;
-    SetupLightingMaterial();
-    t=translate(0, 0, 0);
-    s = scale4(0, 0, 0);
-    modelViewMatrix=mult(mult(modelViewMatrix, t), s);
-    gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(modelViewMatrix));
-    DrawSolidCube(1);
-    modelViewMatrix=mvMatrixStack.pop();
-}
+  mvMatrixStack.push(modelViewMatrix);
+  //light blue building
+  lightAmbient = vec4(1.0, 1.0, 1.0, 1);
+  lightDiffuse = vec4(1.0, 1.0, 1.0, 1);
+  lightSpecular = vec4(1.0, 1.0, 1.0, 1);
+  materialAmbient = vec4(1.0, 1.0, 1.0, 1);
+  materialDiffuse = vec4(1.0, 1.0, 1.0, 1);
+  materialSpecular = vec4(1.0, 1.0, 1.0, 1);
+  materialShininess = 50;
+  SetupLightingMaterial();
+  t=translate(0, 2.8, 0);
+  s=scale4(0.8, 0.3, 0.8);
+  modelViewMatrix=mult(mult(modelViewMatrix, t), s);
+  gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(modelViewMatrix));
+  DrawSolidCube(1);
+  modelViewMatrix=mvMatrixStack.pop();
 
->>>>>>> 7802d7ba59c85b2742d2a3ef2e1d9e1cf3892540
+  mvMatrixStack.push(modelViewMatrix);
+  //light blue building
+  lightAmbient = vec4(0.2, 0.2, 0.4, 1);
+  lightDiffuse = vec4(0.2, 0.2, 0.4, 1);
+  lightSpecular = vec4(0.2, 0.2, 0.4, 1);
+  materialAmbient = vec4(0.2, 0.2, 0.4, 1);
+  materialDiffuse = vec4(0.4, 0.4, 0.6, 1);
+  materialSpecular = vec4(0.5, 0.5, 0.7, 1);
+  materialShininess = 50;
+  SetupLightingMaterial();
+  t=translate(0, 3.6, 0);
+  s=scale4(1, 1.3, 1);
+  modelViewMatrix=mult(mult(modelViewMatrix, t), s);
+  gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(modelViewMatrix));
+  DrawSolidCube(1);
+  modelViewMatrix=mvMatrixStack.pop();
+};
+
+function DrawThirdBuilding() {
+  mvMatrixStack.push(modelViewMatrix);
+  //light blue building
+  lightAmbient = vec4(0.2, 0.2, 0.4, 1);
+  lightDiffuse = vec4(0.2, 0.2, 0.4, 1);
+  lightSpecular = vec4(0.2, 0.2, 0.4, 1);
+  materialAmbient = vec4(0.2, 0.2, 0.4, 1);
+  materialDiffuse = vec4(0.4, 0.4, 0.6, 1);
+  materialSpecular = vec4(0.5, 0.5, 0.7, 1);
+  materialShininess = 50;
+  SetupLightingMaterial();
+  t=translate(0, 0.65, 0);
+  s=scale4(1, 1.3, 1);
+  modelViewMatrix=mult(mult(modelViewMatrix, t), s);
+  gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(modelViewMatrix));
+  DrawSolidCube(1);
+  modelViewMatrix=mvMatrixStack.pop();
+
+  mvMatrixStack.push(modelViewMatrix);
+  //light blue building
+  lightAmbient = vec4(1.0, 1.0, 1.0, 1);
+  lightDiffuse = vec4(1.0, 1.0, 1.0, 1);
+  lightSpecular = vec4(1.0, 1.0, 1.0, 1);
+  materialAmbient = vec4(1.0, 1.0, 1.0, 1);
+  materialDiffuse = vec4(1.0, 1.0, 1.0, 1);
+  materialSpecular = vec4(1.0, 1.0, 1.0, 1);
+  materialShininess = 50;
+  SetupLightingMaterial();
+  t=translate(0, 1.4, 0);
+  s=scale4(0.8, 0.2, 0.8);
+  modelViewMatrix=mult(mult(modelViewMatrix, t), s);
+  gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(modelViewMatrix));
+  DrawSolidCube(1);
+  modelViewMatrix=mvMatrixStack.pop();
+
+  mvMatrixStack.push(modelViewMatrix);
+  //light blue building
+  lightAmbient = vec4(0.2, 0.2, 0.4, 1);
+  lightDiffuse = vec4(0.2, 0.2, 0.4, 1);
+  lightSpecular = vec4(0.2, 0.2, 0.4, 1);
+  materialAmbient = vec4(0.2, 0.2, 0.4, 1);
+  materialDiffuse = vec4(0.4, 0.4, 0.6, 1);
+  materialSpecular = vec4(0.5, 0.5, 0.7, 1);
+  materialShininess = 50;
+  SetupLightingMaterial();
+  t=translate(0, 2.1, 0);
+  s=scale4(1, 1.3, 1);
+  modelViewMatrix=mult(mult(modelViewMatrix, t), s);
+  gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(modelViewMatrix));
+  DrawSolidCube(1);
+  modelViewMatrix=mvMatrixStack.pop();
+
+  mvMatrixStack.push(modelViewMatrix);
+  //light blue building
+  lightAmbient = vec4(1.0, 1.0, 1.0, 1);
+  lightDiffuse = vec4(1.0, 1.0, 1.0, 1);
+  lightSpecular = vec4(1.0, 1.0, 1.0, 1);
+  materialAmbient = vec4(1.0, 1.0, 1.0, 1);
+  materialDiffuse = vec4(1.0, 1.0, 1.0, 1);
+  materialSpecular = vec4(1.0, 1.0, 1.0, 1);
+  materialShininess = 50;
+  SetupLightingMaterial();
+  t=translate(0, 2.8, 0);
+  s=scale4(0.8, 0.3, 0.8);
+  modelViewMatrix=mult(mult(modelViewMatrix, t), s);
+  gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(modelViewMatrix));
+  DrawSolidCube(1);
+  modelViewMatrix=mvMatrixStack.pop();
+
+  mvMatrixStack.push(modelViewMatrix);
+  //light blue building
+  lightAmbient = vec4(0.2, 0.2, 0.4, 1);
+  lightDiffuse = vec4(0.2, 0.2, 0.4, 1);
+  lightSpecular = vec4(0.2, 0.2, 0.4, 1);
+  materialAmbient = vec4(0.2, 0.2, 0.4, 1);
+  materialDiffuse = vec4(0.4, 0.4, 0.6, 1);
+  materialSpecular = vec4(0.5, 0.5, 0.7, 1);
+  materialShininess = 50;
+  SetupLightingMaterial();
+  t=translate(0, 3.1, 0);
+  s=scale4(1, 0.3, 1);
+  modelViewMatrix=mult(mult(modelViewMatrix, t), s);
+  gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(modelViewMatrix));
+  DrawSolidCube(1);
+  modelViewMatrix=mvMatrixStack.pop();
+};
+
+function DrawHelipad() {
+  mvMatrixStack.push(modelViewMatrix);
+  //white helipad
+  lightAmbient = vec4(0.8, 0.8, 0.8, 1);
+  lightDiffuse = vec4(0.8, 0.8, 0.8, 1);
+  lightSpecular = vec4(0.9, 0.9, 0.9, 1);
+  materialAmbient = vec4(0.8, 0.8, 0.8, 1);
+  materialDiffuse = vec4(0.8, 0.8, 0.8, 1);
+  materialSpecular = vec4(0.9, 0.9, 0.9, 1);
+  materialShininess = 50;
+  SetupLightingMaterial();
+  s=scale4(1, 0.02, 1);
+  modelViewMatrix=mult(mult(modelViewMatrix, t), s);
+  gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(modelViewMatrix));
+  DrawSolidCube(1);
+  modelViewMatrix=mvMatrixStack.pop();
+
+  //red H for helipad
+  mvMatrixStack.push(modelViewMatrix);
+  lightAmbient = vec4(1.0, 0.0, 0.0, 1);
+  lightDiffuse = vec4(1.0, 0.0, 0.0, 1);
+  lightSpecular = vec4(1.0, 0.0, 0.0, 1);
+  materialAmbient = vec4(1.0, 0.0, 0.0, 1);
+  materialDiffuse = vec4(1.0, 0.0, 0.0, 1);
+  materialSpecular = vec4(1.0, 0.0, 0.0, 1);
+  materialShininess = 50;
+  SetupLightingMaterial();
+  t=translate(1, 0.08, 1.4);
+  s=scale4(0.1, 0.01, 0.8);
+  modelViewMatrix=mult(mult(modelViewMatrix, t), s);
+  gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(modelViewMatrix));
+  DrawSolidCube(1);
+  modelViewMatrix=mvMatrixStack.pop();
+
+  //red H for helipad
+  mvMatrixStack.push(modelViewMatrix);
+  lightAmbient = vec4(1.0, 0.0, 0.0, 1);
+  lightDiffuse = vec4(1.0, 0.0, 0.0, 1);
+  lightSpecular = vec4(1.0, 0.0, 0.0, 1);
+  materialAmbient = vec4(1.0, 0.0, 0.0, 1);
+  materialDiffuse = vec4(1.0, 0.0, 0.0, 1);
+  materialSpecular = vec4(1.0, 0.0, 0.0, 1);
+  materialShininess = 50;
+  SetupLightingMaterial();
+  t=translate(1.6, 0.08, 1.4);
+  s=scale4(0.1, 0.01, 0.8);
+  modelViewMatrix=mult(mult(modelViewMatrix, t), s);
+  gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(modelViewMatrix));
+  DrawSolidCube(1);
+  modelViewMatrix=mvMatrixStack.pop();
+
+  //red H for helipad
+  mvMatrixStack.push(modelViewMatrix);
+  lightAmbient = vec4(1.0, 0.0, 0.0, 1);
+  lightDiffuse = vec4(1.0, 0.0, 0.0, 1);
+  lightSpecular = vec4(1.0, 0.0, 0.0, 1);
+  materialAmbient = vec4(1.0, 0.0, 0.0, 1);
+  materialDiffuse = vec4(1.0, 0.0, 0.0, 1);
+  materialSpecular = vec4(1.0, 0.0, 0.0, 1);
+  materialShininess = 50;
+  SetupLightingMaterial();
+  t=translate(1.3, 0.08, 1.4);
+  s=scale4(0.1, 0.01, 0.5);
+  r=rotate(90, 0, 1, 0);
+  modelViewMatrix=mult(mult(mult(modelViewMatrix, t), r), s);
+  gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(modelViewMatrix));
+  DrawSolidCube(1);
+  modelViewMatrix=mvMatrixStack.pop();
+};
+
 function DrawRoad() {
   //Draw the road using cubes scaled and translated
   //COMPOSITE OBJECT: ROAD
@@ -1439,16 +1595,9 @@ function DrawRevolutionBuilding() {
 
   // Adjust position and scale
   t = translate(2, 0.2, 1.6);
-<<<<<<< HEAD
   s = scale4(2.0, 3.0, 2.0);  // Increased scale
   //r = rotate(180, 0, 0, 1);     // Rotate to face the camera
   modelViewMatrix = mult(mult(modelViewMatrix, t), s);
-=======
-  s = scale4(2.0, 3.0, 2.0);
-  r = rotate(180, 0, 1, 0); 
-  //modelViewMatrix = mult(mult(modelViewMatrix, t), s);
-  modelViewMatrix = mult(mult(mult(modelViewMatrix, t), r), s);
->>>>>>> 7802d7ba59c85b2742d2a3ef2e1d9e1cf3892540
   gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(modelViewMatrix));
 
   // Draw the surface
@@ -1508,12 +1657,9 @@ function DrawRevolutionBuilding() {
 function animateCar() {
   // Bowen Treulove
   if (carAnimating) {
-<<<<<<< HEAD
     // sound.currentTime = 10;
     sound.play();
     // setTimeout(() => { console.log("This message is displayed with a delay."); }, 100000);
-=======
->>>>>>> 7802d7ba59c85b2742d2a3ef2e1d9e1cf3892540
       if (carPosition < 1) {
           // first section
           var x = carStart.x + (carTurn.x - carStart.x) * carPosition;
@@ -1556,130 +1702,13 @@ function animateCar() {
       modelViewMatrix = mult(mult(mult(modelViewMatrix, t), r), s);
       DrawCar();
       modelViewMatrix = mvMatrixStack.pop();
-<<<<<<< HEAD
       sound.pause();
       sound.currentTime = 0;
-=======
->>>>>>> 7802d7ba59c85b2742d2a3ef2e1d9e1cf3892540
   }
 }
 
-function render()
-{
-	var s, t, r;
+function RenderTree() {
 
-	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-
-<<<<<<< HEAD
-  cameraMovePanorama();
-
-=======
->>>>>>> 7802d7ba59c85b2742d2a3ef2e1d9e1cf3892540
-  // set up view and projection
-  projectionMatrix = ortho(left*zoomFactor-translateFactorX, right*zoomFactor-translateFactorX, bottom*zoomFactor-translateFactorY, ytop*zoomFactor-translateFactorY, near, far);
-  modelViewMatrix=lookAt(eye, at, up);
- 	gl.uniformMatrix4fv(projectionMatrixLoc, false, flatten(projectionMatrix));
-	gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(modelViewMatrix));
-
-  modelViewMatrix = mult(rotationMatrix, modelViewMatrix);
-
-  mvMatrixStack.push(modelViewMatrix);
-  t=translate(-0.5, 0.0, 0.3);
-  s=scale4(2.6, 2.6, 2.6);
-  modelViewMatrix=mult(mult(modelViewMatrix, t), s);
-  DrawBuilding();
-  modelViewMatrix=mvMatrixStack.pop();
-
-	// wall # 1: in xz-plane
-  lightAmbient = vec4(0.2, 0.2, 0.2, 1);
-  lightDiffuse = vec4(0.8, 0.8, 0.8, 1);
-  lightSpecular = vec4(1.0, 1.0, 1.0, 1);
-  materialAmbient = vec4(0.5, 0.5, 0.5, 1);
-  materialDiffuse = vec4(0.7, 0.7, 0.7, 1);
-  materialSpecular = vec4(1.0, 1.0, 1.0, 1);
-  materialShininess = 100;
-  SetupLightingMaterial();
-	DrawWall(0.02);
-
-<<<<<<< HEAD
-
-  if(withWalls===true){
-=======
->>>>>>> 7802d7ba59c85b2742d2a3ef2e1d9e1cf3892540
-	// wall #2: in yz-plane
-	mvMatrixStack.push(modelViewMatrix);
-  lightAmbient = vec4(0.1, 0.1, 0.3, 1);
-  lightDiffuse = vec4(0.1, 0.1, 0.3, 1);
-  lightSpecular = vec4(0.1, 0.1, 0.3, 1);
-  materialAmbient = vec4(0.0, 0.0, 0.5, 1);
-  materialDiffuse = vec4(0.0, 0.0, 0.8, 1);
-  materialSpecular = vec4(0.0, 0.0, 1.0, 1);
-  materialShininess = 0;
-  SetupLightingMaterial();
-	r=rotate(90.0, 0.0, 0.0, 1.0);
-  modelViewMatrix=mult(modelViewMatrix, r);
-	DrawWall(0);
-	modelViewMatrix=mvMatrixStack.pop();
-
-	// wall #3: in xy-plane
-	mvMatrixStack.push(modelViewMatrix);
-  lightAmbient = vec4(0.1, 0.1, 0.3, 1);
-  lightDiffuse = vec4(0.1, 0.1, 0.3, 1);
-  lightSpecular = vec4(0.1, 0.1, 0.3, 1);
-  materialAmbient = vec4(0.0, 0.0, 0.5, 1);
-  materialDiffuse = vec4(0.0, 0.0, 0.8, 1);
-  materialSpecular = vec4(0.0, 0.0, 1.0, 1);
-  materialShininess = 0;
-  SetupLightingMaterial();
-	r=rotate(-90, 1.0, 0.0, 0.0);
-	//r=rotate(90, 1.0, 0.0, 0.0);  // ??
-  modelViewMatrix=mult(modelViewMatrix, r);
-	DrawWall(0.02);
-	modelViewMatrix=mvMatrixStack.pop();
-<<<<<<< HEAD
-  }
-=======
-
->>>>>>> 7802d7ba59c85b2742d2a3ef2e1d9e1cf3892540
-  //draw road
-  DrawRoad();
-
-  // draw the car
-  animateCar();
-
-  mvMatrixStack.push(modelViewMatrix);
-  // Adjust position and orientation for better view
-  t = translate(1.6, 0.55, 1.7);
-  s = scale4(0.25, 0.25, 0.25);  
-  r = rotate(45, 0, 1, 0);       
-  modelViewMatrix = mult(mult(mult(modelViewMatrix, t), r), s);
-  gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(modelViewMatrix));
-  lightAmbient = vec4(0.1, 0.1, 0.3, 1.0);
-  lightDiffuse = vec4(0.3, 0.3, 0.8, 1.0);
-  lightSpecular = vec4(0.5, 0.5, 1.0, 1.0);
-  materialAmbient = vec4(0.5, 0.5, 1.0, 1.0);
-  materialDiffuse = vec4(0.3, 0.3, 0.8, 1.0);
-  materialSpecular = vec4(0.5, 0.5, 1.0, 1.0);
-  materialShininess = 100;
-  SetupLightingMaterial();
-  gl.drawArrays(gl.TRIANGLES, cubeCount + sphereCount, pointsArray.length - 120 - (cubeCount + sphereCount )-50);
-  // console.log("lenght = " + pointsArray.length);
-  modelViewMatrix = mvMatrixStack.pop();
-
-  //draw the surface rev building
-  mvMatrixStack.push(modelViewMatrix);
-  // Adjust position and orientation for better view
-  t = translate(-0.6, 0, -1);
-  s = scale4(1, 1, 1);        
-  modelViewMatrix = mult(mult(modelViewMatrix, t), s);
-  DrawRevolutionBuilding();
-
-<<<<<<< HEAD
-=======
-  //draw building V2
-  DrawBuildingV2();
-
->>>>>>> 7802d7ba59c85b2742d2a3ef2e1d9e1cf3892540
   // Render Trunk
   SetupTrunkMaterial(); // Apply trunk material and lighting
   let trunkScale = scale4(0.12, 0.5, 0.12);
@@ -1723,15 +1752,6 @@ gl.uniform4fv(gl.getUniformLocation(program, "diffuseProduct"), flatten(diffuseP
 gl.drawArrays(gl.TRIANGLES, 60 + 15933 + 60, 6 * N + 1 * 3 * 2 + (60 + 15933 + 60));
 modelViewMatrix=mvMatrixStack.pop();
 
-
-
-
-
-
-
-
-
-
  lastTranslate = translate(0.7, 0, 3.6); // Adjust X, Y, Z as needed
  lastScale = scale4(0.15, 1, 0.15); // Optional scaling if needed
 mvMatrixStack.push(modelViewMatrix);
@@ -1750,53 +1770,140 @@ gl.uniform4fv(gl.getUniformLocation(program, "diffuseProduct"), flatten(diffuseP
 // Draw the geometry with translation applied
 gl.drawArrays(gl.TRIANGLES, 60 + 15933 + 60, 6 * N + 1 * 3 * 2 + (60 + 15933 + 60));
 modelViewMatrix=mvMatrixStack.pop();
+};
 
-  // //repeat tree
-  // SetupTrunkMaterial(); // Apply trunk material and lighting
-  //  trunkScale = scale4(0.12, 0.5, 0.12);
-  //  trunkTranslate = translate(1, 0, 3);
-  // mvMatrixStack.push(modelViewMatrix);
+function render()
+{
+	var s, t, r;
 
-  //  trunkMatrix = mult(mult(modelViewMatrix, trunkTranslate), trunkScale);
-  // gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(trunkMatrix));
-  // gl.uniformMatrix4fv(projectionMatrixLoc, false, flatten(projectionMatrix));
-  // gl.drawArrays(gl.TRIANGLES, 15933, 60); // First 60 vertices are for the trunk
-  // modelViewMatrix=mvMatrixStack.pop();
+	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+  cameraMovePanorama();
+
+  // set up view and projection
+  projectionMatrix = ortho(left*zoomFactor-translateFactorX, right*zoomFactor-translateFactorX, bottom*zoomFactor-translateFactorY, ytop*zoomFactor-translateFactorY, near, far);
+  modelViewMatrix=lookAt(eye, at, up);
+ 	gl.uniformMatrix4fv(projectionMatrixLoc, false, flatten(projectionMatrix));
+	gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(modelViewMatrix));
+
+  modelViewMatrix = mult(rotationMatrix, modelViewMatrix);
+
+  mvMatrixStack.push(modelViewMatrix);
+  t=translate(-0.5, 0.0, 0.3);
+  s=scale4(2.6, 2.6, 2.6);
+  modelViewMatrix=mult(mult(modelViewMatrix, t), s);
+  DrawBuilding();
+  modelViewMatrix=mvMatrixStack.pop();
+
+	// wall # 1: in xz-plane
+  lightAmbient = vec4(0.2, 0.2, 0.2, 1);
+  lightDiffuse = vec4(0.8, 0.8, 0.8, 1);
+  lightSpecular = vec4(1.0, 1.0, 1.0, 1);
+  materialAmbient = vec4(0.5, 0.5, 0.5, 1);
+  materialDiffuse = vec4(0.7, 0.7, 0.7, 1);
+  materialSpecular = vec4(1.0, 1.0, 1.0, 1);
+  materialShininess = 100;
+  SetupLightingMaterial();
+	DrawWall(0.02);
 
 
-  // SetupLeavesMaterial(); // Apply leaves material and lighting
-  //  leavesScale = scale4(0.25, 0.5, 0.25); // Adjust if needed
-  //  leavesTranslate = translate(1, 0, 3);
-  //  leavesMatrix = mult(mult(modelViewMatrix, leavesTranslate), leavesScale);
-  // gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(leavesMatrix));
-  // gl.drawArrays(gl.TRIANGLES, 60 + 15933,  60); // Remaining vertices are for the leaves
-  // // console.log(pointsArray.length - 60);
-  // requestAnimFrame(render);
-  // //end repeat
+  if(withWalls===true){
+	// wall #2: in yz-plane
+	mvMatrixStack.push(modelViewMatrix);
+  lightAmbient = vec4(0.1, 0.1, 0.3, 1);
+  lightDiffuse = vec4(0.1, 0.1, 0.3, 1);
+  lightSpecular = vec4(0.1, 0.1, 0.3, 1);
+  materialAmbient = vec4(0.0, 0.0, 0.5, 1);
+  materialDiffuse = vec4(0.0, 0.0, 0.8, 1);
+  materialSpecular = vec4(0.0, 0.0, 1.0, 1);
+  materialShininess = 0;
+  SetupLightingMaterial();
+	r=rotate(90.0, 0.0, 0.0, 1.0);
+  modelViewMatrix=mult(modelViewMatrix, r);
+	DrawWall(0);
+	modelViewMatrix=mvMatrixStack.pop();
 
-  // //repeat tree
-  // SetupTrunkMaterial(); // Apply trunk material and lighting
-  //  trunkScale = scale4(0.12, 0.5, 0.12);
-  //  trunkTranslate = translate(1, 0, 3.7);
-  // mvMatrixStack.push(modelViewMatrix);
+	// wall #3: in xy-plane
+	mvMatrixStack.push(modelViewMatrix);
+  lightAmbient = vec4(0.1, 0.1, 0.3, 1);
+  lightDiffuse = vec4(0.1, 0.1, 0.3, 1);
+  lightSpecular = vec4(0.1, 0.1, 0.3, 1);
+  materialAmbient = vec4(0.0, 0.0, 0.5, 1);
+  materialDiffuse = vec4(0.0, 0.0, 0.8, 1);
+  materialSpecular = vec4(0.0, 0.0, 1.0, 1);
+  materialShininess = 0;
+  SetupLightingMaterial();
+	r=rotate(-90, 1.0, 0.0, 0.0);
+	//r=rotate(90, 1.0, 0.0, 0.0);  // ??
+  modelViewMatrix=mult(modelViewMatrix, r);
+	DrawWall(0.02);
+	modelViewMatrix=mvMatrixStack.pop();
+  }
+  //draw road
+  DrawRoad();
 
-  //  trunkMatrix = mult(mult(modelViewMatrix, trunkTranslate), trunkScale);
-  // gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(trunkMatrix));
-  // gl.uniformMatrix4fv(projectionMatrixLoc, false, flatten(projectionMatrix));
-  // gl.drawArrays(gl.TRIANGLES, 15933, 60); // First 60 vertices are for the trunk
-  // modelViewMatrix=mvMatrixStack.pop();
+  //draw the helipad
+  mvMatrixStack.push(modelViewMatrix);
+  t = translate(1.5, 0, 1.3);
+  s = scale4(0.75, 0.75, 0.75);
+  modelViewMatrix = mult(mult(modelViewMatrix, t), s);
+  DrawHelipad();
+  modelViewMatrix = mvMatrixStack.pop();
 
+  // draw the car
+  animateCar();
 
-  // SetupLeavesMaterial(); // Apply leaves material and lighting
-  //  leavesScale = scale4(0.25, 0.5, 0.25); // Adjust if needed
-  //  leavesTranslate = translate(1, 0, 3.7);
-  //  leavesMatrix = mult(mult(modelViewMatrix, leavesTranslate), leavesScale);
-  // gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(leavesMatrix));
-  // gl.drawArrays(gl.TRIANGLES, 60 + 15933,  60); // Remaining vertices are for the leaves
-  // // console.log(pointsArray.length - 60);
-  // requestAnimFrame(render);
-  // //end repeat
+  mvMatrixStack.push(modelViewMatrix);
+  // Adjust position and orientation for better view
+  t = translate(2.5, 0.15, 2.4);
+  s = scale4(0.4, 0.4, 0.4);  
+  r = rotate(45, 0, 1, 0);       
+  modelViewMatrix = mult(mult(mult(modelViewMatrix, t), r), s);
+  gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(modelViewMatrix));
+  lightAmbient = vec4(0.1, 0.1, 0.3, 1.0);
+  lightDiffuse = vec4(0.3, 0.3, 0.8, 1.0);
+  lightSpecular = vec4(0.5, 0.5, 1.0, 1.0);
+  materialAmbient = vec4(0.5, 0.5, 1.0, 1.0);
+  materialDiffuse = vec4(0.3, 0.3, 0.8, 1.0);
+  materialSpecular = vec4(0.5, 0.5, 1.0, 1.0);
+  materialShininess = 100;
+  SetupLightingMaterial();
+  gl.drawArrays(gl.TRIANGLES, cubeCount + sphereCount, pointsArray.length - 120 - (cubeCount + sphereCount )-50);
+  // console.log("lenght = " + pointsArray.length);
+  modelViewMatrix = mvMatrixStack.pop();
 
+  //draw the surface rev building
+  mvMatrixStack.push(modelViewMatrix);
+  // Adjust position and orientation for better view
+  t = translate(-0.6, 0, -1);
+  s = scale4(1, 1, 1);        
+  modelViewMatrix = mult(mult(modelViewMatrix, t), s);
+  DrawRevolutionBuilding();
+  modelViewMatrix = mvMatrixStack.pop();mvMatrixStack.pop();
+
+  //draw the second building
+  mvMatrixStack.push(modelViewMatrix);
+  // Adjust position and orientation for better view
+  t = translate(0.5, 0, 2.2);
+  s = scale4(0.6, 0.6, 0.6);
+  modelViewMatrix = mult(mult(modelViewMatrix, t), s);
+  DrawThirdBuilding();
+  modelViewMatrix = mvMatrixStack.pop();mvMatrixStack.pop();
+
+  //draw the third building
+  mvMatrixStack.push(modelViewMatrix);
+  // Adjust position and orientation for better view
+  t = translate(0.5, 0, 0.5);
+  s = scale4(0.6, 0.6, 0.6);
+  modelViewMatrix = mult(mult(modelViewMatrix, t), s);
+  DrawSecondBuilding();
+  modelViewMatrix = mvMatrixStack.pop();
+
+  mvMatrixStack.push(modelViewMatrix);
+  t = translate(-1.1, 0, 1);
+  modelViewMatrix = mult(modelViewMatrix, t);
+  RenderTree();
+  modelViewMatrix = mvMatrixStack.pop();mvMatrixStack.pop();
 }
 
 // ******************************************
@@ -1957,10 +2064,6 @@ function scale4(a, b, c) {
    	result[2][2] = c;
    	return result;
 }
-<<<<<<< HEAD
-=======
-
->>>>>>> 7802d7ba59c85b2742d2a3ef2e1d9e1cf3892540
 // Function to calculate normal vectors using the Newell3 method
 function Newell3(vertices) {
   let x = 0, y = 0, z = 0;
