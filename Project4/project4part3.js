@@ -1,15 +1,12 @@
 // Bowen Truelove
 // Zeiad Abdelkhalik
 // CSCI 4250
-// Project 4 Part 2
-// 11/26/2024
+// Project 4 Part 3
 
 // No AI:
 
 // A.I. Disclaimer: All work for this assignment was completed by myself and entirely without 
 // the use of artificial intelligence tools such as ChatGPT, MS Copilot, other LLMs, etc
-
-
 /*
 Objects completed in Part 1: 
 1. Composite Object: Car
@@ -407,12 +404,6 @@ function SetupLeavesMaterial() {
   materialShininess = 50;                        // High shininess for glossy leaves
   SetupLightingMaterial();
 }
-
-// ******************************************
-// Draw simple and primitive objects
-// ******************************************
-//Start Extruded
-
 function ExtrudedTriangle()
 {
     // for a different extruded object,
@@ -436,7 +427,6 @@ function ExtrudedTriangle()
 
     ExtrudedShape();
 }
-
 
 function ExtrudedShape()
 {
@@ -1884,8 +1874,8 @@ function render()
   //draw the second building
   mvMatrixStack.push(modelViewMatrix);
   // Adjust position and orientation for better view
-  t = translate(0.5, 0, 2.2);
-  s = scale4(0.6, 0.6, 0.6);
+  t = translate(2, 0, 2.7);
+  s = scale4(0.3, 0.6, 0.3);
   modelViewMatrix = mult(mult(modelViewMatrix, t), s);
   DrawThirdBuilding();
   modelViewMatrix = mvMatrixStack.pop();mvMatrixStack.pop();
@@ -1900,7 +1890,7 @@ function render()
   modelViewMatrix = mvMatrixStack.pop();
 
   mvMatrixStack.push(modelViewMatrix);
-  t = translate(-1.1, 0, 1);
+  t = translate(-0.5, 0, -0.9);
   modelViewMatrix = mult(modelViewMatrix, t);
   RenderTree();
   modelViewMatrix = mvMatrixStack.pop();mvMatrixStack.pop();
