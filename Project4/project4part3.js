@@ -397,7 +397,7 @@ function initializeTexture() {
       loadTexture(texture); 
     };
      texture.image.crossOrigin = ''; // or set to 'anonymous'
-      texture.image.src = "https://www.cs.mtsu.edu/~cen/sky.jpg"; 
+      texture.image.src = "road.jpg"; 
     } 
     
     
