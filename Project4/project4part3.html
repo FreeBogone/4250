@@ -3,9 +3,11 @@
   <script id="vertex-shader" type="x-shader/x-vertex">
 
     attribute vec4 vPosition;
+    attribute vec2 vTexCoord;
     attribute vec4 vNormal;
 
     varying vec4 fColor;
+    varying vec2 fTexCoord;
 
     uniform vec4 ambientProduct, diffuseProduct, specularProduct;
     uniform mat4 modelViewMatrix;
@@ -36,8 +38,9 @@
 
         if( dot(L, N) < 0.0 )  specular = vec4(0.0, 0.0, 0.0, 1.0);
 
-        gl_Position = projectionMatrix * modelViewMatrix * vPosition ;
-        fColor = ambient + diffuse +specular;
+        gl_Position = projectionMatrix * modelViewMatrix * vPosition;
+        fColor = ambient + diffuse + specular;
+        fTexCoord = vTexCoord;
 
         fColor.a = 1.0;
     }
@@ -48,11 +51,18 @@
     precision mediump float;
 
     varying vec4 fColor;
+    varying vec2 fTexCoord;
 
-    void
-    main()
+    uniform sampler2D texture;
+    uniform bool useTexture;
+
+    void main()
     {
-        gl_FragColor = fColor;
+        if (useTexture) {
+            gl_FragColor = texture2D(texture, fTexCoord);
+        } else {
+            gl_FragColor = fColor;
+        }
     }
   </script>
 
@@ -77,6 +87,6 @@
       <button id="zoomIn">zoom In</button>
       <button id="zoomOut">zoom Out</button>
     </div>
-    <button onclick="wallTogale()">With Walls or Without Walls</button>
+    <button onclick="toggleTexture()">Toggle Texture</button>
   </body>
 </html>

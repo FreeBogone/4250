@@ -33,7 +33,8 @@ Objects completed in Part 2:
 
 var canvas;
 var gl, program;
-
+var image;
+var numVertices = 36
 var zoomFactor = 2.5;
 var translateFactorX = -0.2;
 var translateFactorY = -0.2;
@@ -42,6 +43,12 @@ var numTimesToSubdivide = 5;
 
 var pointsArray = [];
 var normalsArray = [];
+var texCoordsArray = [];
+
+
+var texture; var useTexture = true; var useTextureLoc;
+
+
 var pointsIndex = 0;
 var colorsArray = [];
 var withWalls= true;
@@ -288,26 +295,68 @@ function main()
 
     ExtrudedTriangle();
 
+//********************************************************************* */
+    // // pass data onto GPU
+    
+    // var nBuffer = gl.createBuffer();
+    // gl.bindBuffer( gl.ARRAY_BUFFER, nBuffer);
+    // gl.bufferData( gl.ARRAY_BUFFER, flatten(normalsArray), gl.STATIC_DRAW );
+    // var vNormal = gl.getAttribLocation( program, "vNormal" );
+    // gl.vertexAttribPointer( vNormal, 3, gl.FLOAT, false, 0, 0 );
+    // gl.enableVertexAttribArray( vNormal);
 
-    // pass data onto GPU
-    var nBuffer = gl.createBuffer();
-    gl.bindBuffer( gl.ARRAY_BUFFER, nBuffer);
-    gl.bufferData( gl.ARRAY_BUFFER, flatten(normalsArray), gl.STATIC_DRAW );
+    // var vBuffer = gl.createBuffer();
+    // gl.bindBuffer(gl.ARRAY_BUFFER, vBuffer);
+    // gl.bufferData(gl.ARRAY_BUFFER, flatten(pointsArray), gl.STATIC_DRAW);
 
-    var vNormal = gl.getAttribLocation( program, "vNormal" );
-    gl.vertexAttribPointer( vNormal, 3, gl.FLOAT, false, 0, 0 );
-    gl.enableVertexAttribArray( vNormal);
+    // var vPosition = gl.getAttribLocation( program, "vPosition");
+    // gl.vertexAttribPointer(vPosition, 4, gl.FLOAT, false, 0, 0);
+    // gl.enableVertexAttribArray(vPosition);
 
     var vBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, vBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, flatten(pointsArray), gl.STATIC_DRAW);
 
-    var vPosition = gl.getAttribLocation( program, "vPosition");
+
+    var vPosition = gl.getAttribLocation(program, "vPosition");
     gl.vertexAttribPointer(vPosition, 4, gl.FLOAT, false, 0, 0);
     gl.enableVertexAttribArray(vPosition);
 
+    // Texture buffer
+    var tBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, tBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, flatten(texCoordsArray), gl.STATIC_DRAW);
+
+    var vTexCoord = gl.getAttribLocation(program, "vTexCoord");
+    gl.vertexAttribPointer(vTexCoord, 2, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(vTexCoord);
+
+    // Normal buffer (if normals are required)
+    if (normalsArray && normalsArray.length > 0) {
+        var nBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, nBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, flatten(normalsArray), gl.STATIC_DRAW);
+
+        var vNormal = gl.getAttribLocation(program, "vNormal");
+        gl.vertexAttribPointer(vNormal, 3, gl.FLOAT, false, 0, 0);
+        gl.enableVertexAttribArray(vNormal);
+    }
+
+
+//**************************************************************** */
+
+    // Initialize texture
+    initializeTexture();
+
+
+
+
     modelViewMatrixLoc = gl.getUniformLocation( program, "modelViewMatrix" );
     projectionMatrixLoc = gl.getUniformLocation( program, "projectionMatrix" );
+
+
+    useTextureLoc = gl.getUniformLocation(program, "useTexture");
+
 
     // support user interface
     document.getElementById("zoomIn").onclick=function(){zoomFactor *= 0.95;};
@@ -326,6 +375,43 @@ function main()
 
     render();
 }
+// function initializeTexture() {
+//    texture = gl.createTexture();
+//   texture.image = new Image();
+//   texture.image.onload = function () {
+//       gl.bindTexture(gl.TEXTURE_2D, texture);
+//       gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, texture.image);
+//       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+//       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+//       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+//       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+//       gl.uniform1i(gl.getUniformLocation(program, "texture"), 0);
+//   };
+//   texture.image.src = "road.jpg"; 
+// }
+
+function initializeTexture() {
+   texture = gl.createTexture();
+    texture.image = new Image();
+     texture.image.onload = function () { 
+      loadTexture(texture); 
+    };
+     texture.image.crossOrigin = ''; // or set to 'anonymous'
+      texture.image.src = "https://www.cs.mtsu.edu/~cen/sky.jpg"; 
+    } 
+    
+    
+function loadTexture(texture) { 
+  gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+   gl.activeTexture(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_2D, texture);
+     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, texture.image); 
+     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE); 
+     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE); 
+     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST); 
+     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+      gl.uniform1i(gl.getUniformLocation(program, "texture"), 0);
+     }
 
 function HandleKeyboard(event)
 {
@@ -404,30 +490,59 @@ function SetupLeavesMaterial() {
   materialShininess = 50;                        // High shininess for glossy leaves
   SetupLightingMaterial();
 }
-function ExtrudedTriangle()
-{
-    // for a different extruded object,
-    // only change these two variables: Exvertices and height
+// function ExtrudedTriangle()
+// {
+//     // for a different extruded object,
+//     // only change these two variables: Exvertices and height
 
-    var height=2;
-    Exvertices = [ vec4(2, 0, 0, 1),
-                   vec4(5, 0, 1, 1),
+//     var height=2;
+//     Exvertices = [ vec4(2, 0, 0, 1),
+//                    vec4(5, 0, 1, 1),
 
-                 vec4(0, 0, 2, 1),
-                 vec4(0, 0, 0, 1),
-				 ];
-    N=N_Triangle = Exvertices.length;
+//                  vec4(0, 0, 2, 1),
+//                  vec4(0, 0, 0, 1),
+// 				 ];
+//     N=N_Triangle = Exvertices.length;
 
-    // add the second set of points
-    // extruded along the Y Axis
-    for (var i=0; i<N; i++)
-    {
-        Exvertices.push(vec4(Exvertices[i][0], Exvertices[i][1]+height, Exvertices[i][2], 1));
-    }
+//     // add the second set of points
+//     // extruded along the Y Axis
+//     for (var i=0; i<N; i++)
+//     {
+//         Exvertices.push(vec4(Exvertices[i][0], Exvertices[i][1]+height, Exvertices[i][2], 1));
+//     }
 
-    ExtrudedShape();
+//     ExtrudedShape();
+// }
+function toggleTexture() {
+  useTexture = !useTexture;
+  gl.uniform1i(useTextureLoc, useTexture);
+  render();
 }
 
+function ExtrudedTriangle() {
+  var height = 2;
+  Exvertices = [
+      vec4(2, 0, 0, 1),
+      vec4(5, 0, 1, 1),
+      vec4(0, 0, 2, 1),
+      vec4(0, 0, 0, 1),
+  ];
+  N =N_Triangle = Exvertices.length;
+
+  texCoordsArray = [
+      vec2(0, 0),
+      vec2(1, 0),
+      vec2(1, 1),
+      vec2(0, 1),
+  ];
+
+  for (var i = 0; i < N; i++) {
+      Exvertices.push(vec4(Exvertices[i][0], Exvertices[i][1] + height, Exvertices[i][2], 1));
+      texCoordsArray.push(texCoordsArray[i]);
+  }
+
+  ExtrudedShape();
+}
 function ExtrudedShape()
 {
     lightAmbient = vec4(0.2, 0.2, 0.2, 1.0 );
@@ -1894,6 +2009,11 @@ function render()
   modelViewMatrix = mult(modelViewMatrix, t);
   RenderTree();
   modelViewMatrix = mvMatrixStack.pop();mvMatrixStack.pop();
+
+
+
+  // Draw the extruded shape
+  // gl.drawArrays(gl.TRIANGLES, 0, Exvertices.length);
 }
 
 // ******************************************
