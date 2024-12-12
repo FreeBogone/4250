@@ -346,7 +346,16 @@ function main()
 //**************************************************************** */
 
     // Initialize texture
-    initializeTexture();
+
+    
+// Call initializeTexture and handle errors
+initializeTexture()
+.then(() => {
+    console.log("Texture loaded successfully.");
+})
+.catch(error => {
+    console.error("Error loading texture:", error);
+});
 
 
 
@@ -389,16 +398,27 @@ function main()
 //   };
 //   texture.image.src = "road.jpg"; 
 // }
-
 function initializeTexture() {
-   texture = gl.createTexture();
-    texture.image = new Image();
-     texture.image.onload = function () { 
-      loadTexture(texture); 
-    };
-     texture.image.crossOrigin = ''; // or set to 'anonymous'
-      texture.image.src = "road.jpg"; 
-    } 
+  return new Promise((resolve, reject) => {
+      texture = gl.createTexture();
+      texture.image = new Image();
+      texture.image.onload = function () {
+          try {
+              loadTexture(texture);
+              resolve();
+          } catch (error) {
+              reject(error);
+          }
+      };
+      texture.image.onerror = function (error) {
+          reject(error);
+      };
+      texture.image.crossOrigin = ''; // or set to 'anonymous'
+      texture.image.src = "img2.jpg";
+  });
+}
+
+
     
     
 function loadTexture(texture) { 
@@ -584,27 +604,19 @@ function ExtrudedShape()
 function ExQuad(a, b, c, d) {
 
      var indices=[a, b, c, d];
-     var normal = Newell(indices);
-
-     // triangle a-b-c
+    // Triangle a-b-c
      pointsArray.push(Exvertices[a]);
-     normalsArray.push(normal);
-
-     pointsArray.push(Exvertices[b]);
-     normalsArray.push(normal);
-
-     pointsArray.push(Exvertices[c]);
-     normalsArray.push(normal);
-
-     // triangle a-c-d
-     pointsArray.push(Exvertices[a]);
-     normalsArray.push(normal);
-
-     pointsArray.push(Exvertices[c]);
-     normalsArray.push(normal);
-
-     pointsArray.push(Exvertices[d]);
-     normalsArray.push(normal);
+      texCoordsArray.push(texCoordsArray[a % 4]);
+       pointsArray.push(Exvertices[b]); 
+       texCoordsArray.push(texCoordsArray[b % 4]);
+        pointsArray.push(Exvertices[c]); 
+        texCoordsArray.push(texCoordsArray[c % 4]); // Triangle a-c-d 
+        pointsArray.push(Exvertices[a]);
+         texCoordsArray.push(texCoordsArray[a % 4]);
+          pointsArray.push(Exvertices[c]);
+           texCoordsArray.push(texCoordsArray[c % 4]);
+            pointsArray.push(Exvertices[d]);
+             texCoordsArray.push(texCoordsArray[d % 4]);
 }
 
 
@@ -621,19 +633,15 @@ function polygon(indices)
     // a-c-d
     // a-d-e
     // ...
-    for (var i=0; i<M-2; i++)
-    {
-        pointsArray.push(Exvertices[indices[0]]);
-        normalsArray.push(normal);
-
+    for (var i = 0; i < M - 2; i++) { 
+      pointsArray.push(Exvertices[indices[0]]);
+       texCoordsArray.push(texCoordsArray[indices[0] % 4]);
         pointsArray.push(Exvertices[indices[prev]]);
-        normalsArray.push(normal);
-
-        pointsArray.push(Exvertices[indices[next]]);
-        normalsArray.push(normal);
-
-        prev=next;
-        next=next+1;
+         texCoordsArray.push(texCoordsArray[indices[prev] % 4]);
+          pointsArray.push(Exvertices[indices[next]]);
+           texCoordsArray.push(texCoordsArray[indices[next] % 4])
+           ; prev = next; 
+           next = next + 1;
     }
 }
 
